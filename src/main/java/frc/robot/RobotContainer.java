@@ -111,11 +111,8 @@ public class RobotContainer {
         }
 
         private void configureDefaultCommand() {
-                manipulatorSubsystem.setDefaultCommand(
-                                new InstantCommand(
-                                                () -> {
-                                                },
-                                                manipulatorSubsystem));
+                // manipulatorSubsystem.setDefaultCommand(
+                //                 manipulatorSubsystem.continuousIntakeCommand());
         }
 
         private void registerNamedCommands() {
@@ -233,9 +230,9 @@ public class RobotContainer {
                         System.out.println("Cancelling ScoreAtLevelCommand...");
                         activeScoreCommand.cancel();
                         activeScoreCommand = null;
-                        
+
                         // Restore normal acceleration when canceling
-                        drivebase.setReduceAcceleration(false);
+                        // drivebase.setReduceAcceleration(false);
                 }
         }
 
@@ -243,14 +240,10 @@ public class RobotContainer {
                 cancelActiveScoreCommand(); // Ensure no other ScoreAtLevelCommand is running
 
                 // Reduce acceleration if we are scoring at L3 or L4
-                boolean reduceAcceleration = (level == Levels.L3 || level == Levels.L4);
-                drivebase.setReduceAcceleration(reduceAcceleration);
+                // boolean reduceAcceleration = (level == Levels.L3 || level == Levels.L4);
+                // drivebase.setReduceAcceleration(reduceAcceleration);
 
-                activeScoreCommand = manipulatorSubsystem.ScoreAtLevelCommand(level)
-                                .finallyDo((interrupted) -> {
-                                        // Restore normal acceleration after scoring is complete
-                                        drivebase.setReduceAcceleration(false);
-                                });
+                activeScoreCommand = manipulatorSubsystem.ScoreAtLevelParallelCommand(level);
                 activeScoreCommand.schedule();
         }
 }

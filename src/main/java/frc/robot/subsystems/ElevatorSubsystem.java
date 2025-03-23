@@ -19,14 +19,14 @@ public class ElevatorSubsystem extends SubsystemBase {
   private final RelativeEncoder leftEncoder;
   private final SparkClosedLoopController leftClosedLoopController;
 
-  private static final double GEAR_RATIO = 20.0; // 20:1 gearbox
+  private static final double GEAR_RATIO = 12.0; // 12:1 gearbox
   private static final double SPROCKET_DIAMETER_INCHES = 1.75; // Change this based on your actual sprocket diameter
   private static final double SPROCKET_CIRCUMFERENCE = SPROCKET_DIAMETER_INCHES * Math.PI; // inches per rev
-  private static final double kP = 0.07;
+  private static final double kP = 0.06;
   private static final double kI = 0.0;
   private static final double kD = 0.0;
   private static final double MAX_HEIGHT = 27;
-  private static final double HEIGHT_TOLERANCE = 0.5;
+  private static final double HEIGHT_TOLERANCE = 1;
   private double currentHeight = 0.25;
   private boolean isMAXMotionEnabled;
 
@@ -46,17 +46,19 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     } else {
       // MAXMotionConfig maxMotionConfig = new MAXMotionConfig()
-      //     .maxVelocity(1000000) // Set the maximum velocity (in RPM)
-      //     .maxAcceleration(200000) // Set the maximum acceleration (in RPM per second)
-      //     .allowedClosedLoopError(0.05) // Set the allowed closed-loop error (in rotations)
-      //     .positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal); // Choose the position control mode
+      // .maxVelocity(1000000) // Set the maximum velocity (in RPM)
+      // .maxAcceleration(200000) // Set the maximum acceleration (in RPM per second)
+      // .allowedClosedLoopError(0.05) // Set the allowed closed-loop error (in
+      // rotations)
+      // .positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal); // Choose the
+      // position control mode
 
       // // Apply the MAXMotion configuration to the closed-loop settings
       // leftConfig.closedLoop
-      //     .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-      //     .p(kP).i(kI).d(kD)
-      //     .apply(maxMotionConfig) // Apply the MAXMotion configuration
-      //     .outputRange(-1, 1); // Set the output range
+      // .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+      // .p(kP).i(kI).d(kD)
+      // .apply(maxMotionConfig) // Apply the MAXMotion configuration
+      // .outputRange(-1, 1); // Set the output range
     }
 
     leftConfig.inverted(false);

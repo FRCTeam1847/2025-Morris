@@ -35,6 +35,8 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.DriveFeedforwards;
 import com.pathplanner.lib.util.swerve.SwerveSetpoint;
 import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator;
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -44,7 +46,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.measure.MutAngularVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -52,8 +53,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
-import frc.robot.LimelightHelpers;
-
 //import frc.robot.subsystems.swervedrive.Vision.Cameras;
 import java.io.File;
 import java.io.IOException;
@@ -84,18 +83,15 @@ public class SwerveSubsystem extends SubsystemBase {
   /**
    * AprilTag field layout.
    */
-  // private final AprilTagFieldLayout aprilTagFieldLayout =
-  // AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
+  //private final AprilTagFieldLayout aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
   /**
    * Enable vision odometry updates while driving.
    */
   private final boolean visionDriveTest = false;
-
-  private boolean reduceAcceleration = false; // Boolean flag to control max acceleration
-
-  public void setReduceAcceleration(boolean reduce) {
-    reduceAcceleration = reduce;
-  }
+  /**
+   * PhotonVision class to keep an accurate odometry.
+   */
+  // private Vision vision;
 
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
@@ -155,45 +151,22 @@ public class SwerveSubsystem extends SubsystemBase {
             Rotation2d.fromDegrees(0)));
   }
 
+  // /**
+  // * Setup the photon vision class.
+  // */
+  // public void setupPhotonVision()
+  // {
+  // vision = new Vision(swerveDrive::getPose, swerveDrive.field);
+  // }
+
   @Override
   public void periodic() {
     // When vision is enabled we must manually update odometry in SwerveDrive
     if (visionDriveTest) {
       swerveDrive.updateOdometry();
+      // vision.updatePoseEstimation(swerveDrive);
     }
-
-    // Record the robot's pose to the logger for visualization
     Logger.recordOutput("Field/Robot", new Pose3d(getPose()));
-
-    // Limelight vision integration
-    updateVisionPose();
-  }
-
-  private void updateVisionPose() {
-    // Get the gyro angular velocity from YAGSL
-    MutAngularVelocity yawVelocity = swerveDrive.getGyro().getYawAngularVelocity();
-
-    // Convert to degrees per second
-    double angularVelocity = yawVelocity.magnitude();
-
-    // Set robot orientation for Limelight
-    LimelightHelpers.SetRobotOrientation(
-        "limelight",
-        getPose().getRotation().getDegrees(),
-        0, 0, 0, 0, 0);
-
-    // Retrieve pose estimation from Limelight
-    LimelightHelpers.PoseEstimate visionPose = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
-
-    // Reject vision update if:
-    // 1. Robot is rotating too fast (vision data unreliable)
-    // 2. No valid AprilTags detected
-    if (Math.abs(angularVelocity) > 360 || visionPose.tagCount == 0 || !visionPose.isMegaTag2) {
-      return; // Skip update
-    }
-
-    // Apply vision update using YAGSL's method
-    swerveDrive.addVisionMeasurement(visionPose.pose, visionPose.timestampSeconds);
   }
 
   @Override
@@ -310,10 +283,9 @@ public class SwerveSubsystem extends SubsystemBase {
    * @return PathFinding command
    */
   public Command driveToPose(Pose2d pose) {
-    double maxAcceleration = reduceAcceleration ? 2.0 : 4.0; // Reduce max acceleration if true
     // Create the constraints to use while pathfinding
     PathConstraints constraints = new PathConstraints(
-        swerveDrive.getMaximumChassisVelocity(), maxAcceleration,
+        swerveDrive.getMaximumChassisVelocity(), 4.0,
         swerveDrive.getMaximumChassisAngularVelocity(), Units.degreesToRadians(720));
 
     // Since AutoBuilder is configured, we can use it to build pathfinding commands
@@ -455,11 +427,10 @@ public class SwerveSubsystem extends SubsystemBase {
   public Command driveCommand(DoubleSupplier translationX, DoubleSupplier translationY,
       DoubleSupplier angularRotationX) {
     return run(() -> {
-      double accelerationFactor = reduceAcceleration ? 0.5 : 1.0; // Scale speed if limiting acceleration
       // Make the robot move
       swerveDrive.drive(SwerveMath.scaleTranslation(new Translation2d(
-          translationX.getAsDouble() * swerveDrive.getMaximumChassisVelocity() * accelerationFactor,
-          translationY.getAsDouble() * swerveDrive.getMaximumChassisVelocity() * accelerationFactor), 0.8),
+          translationX.getAsDouble() * swerveDrive.getMaximumChassisVelocity(),
+          translationY.getAsDouble() * swerveDrive.getMaximumChassisVelocity()), 0.8),
           Math.pow(angularRotationX.getAsDouble(), 3) * swerveDrive.getMaximumChassisAngularVelocity(),
           true,
           false);

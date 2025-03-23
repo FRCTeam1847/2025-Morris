@@ -5,6 +5,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -95,7 +96,7 @@ public class ManipulatorSubsystem extends SubsystemBase {
         elevatorSubsystem.setTargetHeight(6.25);
         break;
       case L3:
-        elevatorSubsystem.setTargetHeight(14.75);
+        elevatorSubsystem.setTargetHeight(13.75);
         break;
       case L4:
         elevatorSubsystem.setTargetHeight(27);
@@ -116,11 +117,11 @@ public class ManipulatorSubsystem extends SubsystemBase {
         new InstantCommand(() -> intakeSubsystem.stopIntake()), // Stop intake once we have coral
 
         // Step 2: Move to the scoring level
-        new RunCommand(() -> setLevel(level), this).until(this::isAtHeight),
-        // new InstantCommand(() -> setLevel(level)), // Set the target level
-        // new WaitUntilCommand(this::isAtHeight), // Wait until the elevator reaches
+        // new RunCommand(() -> setLevel(level), this).until(this::isAtHeight),
+        new InstantCommand(() -> setLevel(level)), // Set the target level
+        new WaitUntilCommand(this::isAtHeight), // Wait until the elevator reaches
         // the target height
-        new WaitCommand(0.15), // Small wait before scoring
+        // new WaitCommand(0.15), // Small wait before scoring
 
         // Step 3: Score the coral
         new InstantCommand(() -> intakeSubsystem.release()), // Release the coral
@@ -129,7 +130,7 @@ public class ManipulatorSubsystem extends SubsystemBase {
         new InstantCommand(() -> intakeSubsystem.stopIntake()), // Stop intake once we have coral
 
         // Step 4: Wait before returning home
-        new WaitCommand(0.15), // Adjust delay as needed before returning home
+        // new WaitCommand(0.15), // Adjust delay as needed before returning home
         new InstantCommand(() -> setLevel(Levels.Home)) // Move back to home position
     ).finallyDo((interrupted) -> {
       System.out.println("ScoreAtLevelCommand Ended. Stopping Intake.");
@@ -138,32 +139,63 @@ public class ManipulatorSubsystem extends SubsystemBase {
   }
 
   public Command ScoreAtLevelParallelCommand(Levels level) {
-    System.out.println("Command Started for level " + level);
+    System.out.println("Command Started");
 
     return new SequentialCommandGroup(
-        // Step 1 (intake) and Step 2 (move elevator) run in parallel
+        // Step 1: Intake only if we DON'T already have a coral
         new ParallelCommandGroup(
-            new SequentialCommandGroup(
-                new InstantCommand(() -> intakeSubsystem.intake()), // Start intaking
-                new WaitUntilCommand(this::hasCoral), // Wait until we detect the coral
-                new InstantCommand(() -> intakeSubsystem.stopIntake()) // Stop intake immediately once coral is detected
+            new ConditionalCommand(
+                new SequentialCommandGroup(
+                    new InstantCommand(() -> intakeSubsystem.intake()), // Start intaking
+                    new WaitUntilCommand(this::hasCoral), // Wait until we detect the coral
+                    new InstantCommand(() -> intakeSubsystem.stopIntake()) // Stop intake immediately once coral is
+                                                                           // detected
+                ),
+                new InstantCommand(() -> System.out.println("Skipping intake - Coral already present")), // Just log
+                                                                                                         // that intake
+                                                                                                         // was skipped
+                this::hasNoCoral // Condition: If we already have coral, skip intake
             ),
             new RunCommand(() -> setLevel(level), this).until(this::isAtHeight) // Move to target level
         ),
 
-        // Step 3: Wait before scoring
-        new WaitCommand(0.15), // Allow brief stabilization before scoring
-        new InstantCommand(() -> intakeSubsystem.release()), // Release the coral
+        // Ensure the elevator is at height before proceeding (even if intake was
+        // skipped)
+        new WaitUntilCommand(this::isAtHeight),
 
-        // Step 4: Wait for coral to leave intake before going home
-        new WaitUntilCommand(() -> !hasCoral()), // Wait until coral is fully released
-        new WaitCommand(0.15), // Short pause before moving home
+        // Step 3: Only score if we have a coral
+        new ConditionalCommand(
+            new SequentialCommandGroup(
+                new WaitCommand(0.15), // Allow brief stabilization before scoring
+                new InstantCommand(() -> intakeSubsystem.release()), // Release the coral
+                new WaitUntilCommand(() -> !hasCoral()), // Wait until coral is fully released
+                new WaitCommand(0.15) // Short pause before moving home
+            ),
+            new InstantCommand(() -> System.out.println("Skipping scoring - No coral detected")), // Just log that we
+                                                                                                  // are skipping
+                                                                                                  // scoring
+            this::hasCoral // Only run this sequence if we actually have a coral
+        ),
 
         // Step 5: Move home
-        new RunCommand(() -> setLevel(Levels.Home), this).until(this::isAtHeight)).finallyDo((interrupted) -> {
-          System.out.println("ScoreAtLevelCommand Ended. Stopping Intake.");
-          intakeSubsystem.stopIntake();
-        });
+        new RunCommand(() -> setLevel(Levels.Home), this).until(this::isAtHeight),
+
+        // Ensure the entire sequence completes before allowing auto to drive away
+        new WaitUntilCommand(this::isAtHeight) // Make sure elevator reaches home before continuing auto
+    ).finallyDo((interrupted) -> {
+      System.out.println("ScoreAtLevelCommand Ended. Stopping Intake.");
+      intakeSubsystem.stopIntake();
+    });
+  }
+
+  public Command continuousIntakeCommand() {
+    return new RunCommand(() -> {
+      if (!hasCoral()) {
+        intakeSubsystem.intake();
+      } else {
+        intakeSubsystem.stopIntake();
+      }
+    }, intakeSubsystem);
   }
 
   public Command releaseCommand() {
@@ -184,6 +216,10 @@ public class ManipulatorSubsystem extends SubsystemBase {
 
   public boolean hasCoral() {
     return intakeSubsystem.isSensorTriggered();
+  }
+
+  public boolean hasNoCoral() {
+    return !intakeSubsystem.isSensorTriggered();
   }
 
   @Override

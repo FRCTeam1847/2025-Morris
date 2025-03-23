@@ -11,43 +11,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Right-F"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "AlignLeft"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "L4"
-                }
-              },
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 2.0
-                }
-              },
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "F-Coral"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Intake"
-                }
-              },
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Coral-D"
+                  "pathName": "Left-J"
                 }
               },
               {
@@ -71,7 +35,37 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "D-Coral"
+                  "pathName": "J coral"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Intake"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Coral L"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "AlignRight"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "L4"
+                }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 2.0
                 }
               }
             ]

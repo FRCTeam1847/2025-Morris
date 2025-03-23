@@ -26,12 +26,12 @@ public class ClimberSubsystem extends SubsystemBase {
 
   /** Moves the Kraken X60 climber forward */
   public Command moveForwardCommand() {
-    return runOnce(() -> m_motor.set(1));
+    return runOnce(() -> m_motor.set(0.5));
   }
 
   /** Moves the Kraken X60 climber backward */
   public Command moveBackwardCommand() {
-    return runOnce(() -> m_motor.set(-1));
+    return runOnce(() -> m_motor.set(-0.5));
   }
 
   /** Stops the Kraken X60 climber and enables brake mode. */

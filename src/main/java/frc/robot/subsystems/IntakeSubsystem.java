@@ -48,11 +48,12 @@ public class IntakeSubsystem extends SubsystemBase {
 
   public void intake() {
 
-    intakeSpeed = -0.125;
+    intakeSpeed = -0.13;
 
   }
 
   public void release() {
+    System.out.println("Release");
     intakeSpeed = -0.5;
   }
 
