@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 
 /**
@@ -112,7 +113,7 @@ public class RobotContainer {
 
         private void configureDefaultCommand() {
                 // manipulatorSubsystem.setDefaultCommand(
-                //                 manipulatorSubsystem.continuousIntakeCommand());
+                // manipulatorSubsystem.continuousIntakeCommand());
         }
 
         private void registerNamedCommands() {
@@ -126,18 +127,22 @@ public class RobotContainer {
                                 new InstantCommand(
                                                 () -> manipulatorSubsystem.setLevel(Levels.CoralStation),
                                                 manipulatorSubsystem));
-                NamedCommands.registerCommand(
-                                "L1",
-                                new InstantCommand(() -> startScoreCommand(Levels.L1)));
-                NamedCommands.registerCommand(
-                                "L2",
-                                new InstantCommand(() -> startScoreCommand(Levels.L2)));
-                NamedCommands.registerCommand(
-                                "L3",
-                                new InstantCommand(() -> startScoreCommand(Levels.L3)));
-                NamedCommands.registerCommand(
-                                "L4",
-                                new InstantCommand(() -> startScoreCommand(Levels.L4)));
+                // NamedCommands.registerCommand(
+                // "L1",
+                // new InstantCommand(() -> startScoreCommand(Levels.L1)));
+                // NamedCommands.registerCommand(
+                // "L2",
+                // new InstantCommand(() -> startScoreCommand(Levels.L2)));
+                // NamedCommands.registerCommand(
+                // "L3",
+                // new InstantCommand(() -> startScoreCommand(Levels.L3)));
+                // NamedCommands.registerCommand(
+                // "L4",
+                // new InstantCommand(() -> startScoreCommand(Levels.L4)));
+                NamedCommands.registerCommand("L1", scoreCommandWithTracking(Levels.L1));
+                NamedCommands.registerCommand("L2", scoreCommandWithTracking(Levels.L2));
+                NamedCommands.registerCommand("L3", scoreCommandWithTracking(Levels.L3));
+                NamedCommands.registerCommand("L4", scoreCommandWithTracking(Levels.L4));
                 NamedCommands.registerCommand(
                                 "Intake", manipulatorSubsystem.intakeCommand());
                 NamedCommands.registerCommand(
@@ -245,5 +250,18 @@ public class RobotContainer {
 
                 activeScoreCommand = manipulatorSubsystem.ScoreAtLevelParallelCommand(level);
                 activeScoreCommand.schedule();
+        }
+
+        private Command scoreCommandWithTracking(Levels level) {
+                return new ProxyCommand(() -> {
+                        cancelActiveScoreCommand(); // Cancel any running score command first
+                        Command cmd = manipulatorSubsystem.ScoreAtLevelParallelCommand(level)
+                                        .finallyDo(() -> {
+                                                System.out.println("Finished ScoreAtLevel for " + level);
+                                                activeScoreCommand = null;
+                                        });
+                        activeScoreCommand = cmd;
+                        return cmd;
+                });
         }
 }
