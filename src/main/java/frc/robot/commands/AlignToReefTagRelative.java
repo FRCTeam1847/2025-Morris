@@ -54,7 +54,7 @@ public class AlignToReefTagRelative extends Command {
       this.dontSeeTagTimer.reset();
 
       double[] postions = LimelightHelpers.getBotPose_TargetSpace("");
-      SmartDashboard.putNumber("x", postions[2]);
+      logAllPIDState(postions);
 
       double xSpeed = xController.calculate(postions[2]);
       SmartDashboard.putNumber("xspee", xSpeed);
@@ -85,5 +85,33 @@ public class AlignToReefTagRelative extends Command {
     // Requires the robot to stay in the correct position for 0.3 seconds, as long as it gets a tag in the camera
     return this.dontSeeTagTimer.hasElapsed(Constants.DONT_SEE_TAG_WAIT_TIME) ||
         stopTimer.hasElapsed(Constants.POSE_VALIDATION_TIME);
+  }
+
+  private void logAllPIDState(double[] positions) {
+    double xMeasurement = positions[2];
+    double yMeasurement = positions[0];
+    double rotMeasurement = positions[4];
+  
+    SmartDashboard.putNumber("Limelight X Pose", xMeasurement);
+    SmartDashboard.putNumber("Limelight Y Pose", yMeasurement);
+    SmartDashboard.putNumber("Limelight Rot Pose", rotMeasurement);
+  
+    // X Controller
+    SmartDashboard.putNumber("X Setpoint", xController.getSetpoint());
+    SmartDashboard.putNumber("X Error", xController.getSetpoint() - xMeasurement);
+    SmartDashboard.putNumber("X Output", xController.calculate(xMeasurement));
+    SmartDashboard.putBoolean("X At Setpoint", xController.atSetpoint());
+  
+    // Y Controller
+    SmartDashboard.putNumber("Y Setpoint", yController.getSetpoint());
+    SmartDashboard.putNumber("Y Error", yController.getSetpoint() - yMeasurement);
+    SmartDashboard.putNumber("Y Output", -yController.calculate(yMeasurement));
+    SmartDashboard.putBoolean("Y At Setpoint", yController.atSetpoint());
+  
+    // Rotation Controller
+    SmartDashboard.putNumber("Rot Setpoint", rotController.getSetpoint());
+    SmartDashboard.putNumber("Rot Error", rotController.getSetpoint() - rotMeasurement);
+    SmartDashboard.putNumber("Rot Output", -rotController.calculate(rotMeasurement));
+    SmartDashboard.putBoolean("Rot At Setpoint", rotController.atSetpoint());
   }
 }

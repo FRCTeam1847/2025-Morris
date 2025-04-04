@@ -53,6 +53,8 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
+import frc.robot.LimelightHelpers;
+
 //import frc.robot.subsystems.swervedrive.Vision.Cameras;
 import java.io.File;
 import java.io.IOException;
@@ -80,10 +82,12 @@ public class SwerveSubsystem extends SubsystemBase {
    * Swerve drive object.
    */
   private final SwerveDrive swerveDrive;
+
   /**
    * AprilTag field layout.
    */
-  //private final AprilTagFieldLayout aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
+  // private final AprilTagFieldLayout aprilTagFieldLayout =
+  // AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
   /**
    * Enable vision odometry updates while driving.
    */
@@ -98,6 +102,14 @@ public class SwerveSubsystem extends SubsystemBase {
    *
    * @param directory Directory of swerve drive config files.
    */
+
+  private boolean isSlowMode = true;
+
+  public void setSlowMode() {
+    System.out.println("Setting slow mode");
+    this.isSlowMode = !isSlowMode;
+  }
+
   public SwerveSubsystem(File directory) {
     // Configure the Telemetry before creating the SwerveDrive to avoid unnecessary
     // objects being created.
@@ -161,12 +173,45 @@ public class SwerveSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // When vision is enabled we must manually update odometry in SwerveDrive
-    if (visionDriveTest) {
-      swerveDrive.updateOdometry();
-      // vision.updatePoseEstimation(swerveDrive);
-    }
+    /** old way **/
+
+    // LimelightHelpers.PoseEstimate visionPose;
+    // visionPose = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight");
+    // if (LimelightHelpers.validPoseEstimate(visionPose)) {
+    // swerveDrive.addVisionMeasurement(
+    // visionPose.pose,
+    // visionPose.timestampSeconds);
+    // }
+
+    LimelightHelpers.PoseEstimate visionPose1 = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight");
+    LimelightHelpers.PoseEstimate visionPose2 = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-main");
+
+    Pose2d currentPose = getPose();
+
+    // Helper method to validate and add each vision estimate
+    addValidVisionMeasurement(visionPose1, currentPose, "limelight");
+    addValidVisionMeasurement(visionPose2, currentPose, "limelight-main");
     Logger.recordOutput("Field/Robot", new Pose3d(getPose()));
+  }
+
+  private void addValidVisionMeasurement(LimelightHelpers.PoseEstimate visionPose, Pose2d currentPose, String camName) {
+    if (LimelightHelpers.validPoseEstimate(visionPose)) {
+      Pose2d visionEstimate = visionPose.pose;
+
+      double distance = currentPose.getTranslation().getDistance(visionEstimate.getTranslation());
+      double rotationDiff = Math
+          .abs(currentPose.getRotation().getDegrees() - visionEstimate.getRotation().getDegrees());
+      boolean isRecent = Timer.getFPGATimestamp() - visionPose.timestampSeconds < 0.5;
+      boolean isCloseEnough = distance < 1.0 && rotationDiff < 30.0;
+
+       if (isRecent ) {
+      swerveDrive.addVisionMeasurement(visionEstimate, visionPose.timestampSeconds);
+     } 
+     //else {
+      // System.out.printf("[Vision %s] Rejected: Δx=%.2f, Δθ=%.1f°%n", camName,
+      // distance, rotationDiff);
+      // }
+    }
   }
 
   @Override
@@ -339,8 +384,16 @@ public class SwerveSubsystem extends SubsystemBase {
   public Command driveWithSetpointGeneratorFieldRelative(Supplier<ChassisSpeeds> fieldRelativeSpeeds) {
     try {
       return driveWithSetpointGenerator(() -> {
-        return ChassisSpeeds.fromFieldRelativeSpeeds(fieldRelativeSpeeds.get(), getHeading());
+        ChassisSpeeds speeds = fieldRelativeSpeeds.get();
 
+        double speedMultiplier = isSlowMode ? 0.4 : 1.0;
+        double angularMultiplier = isSlowMode ? 0.5 : 1.0;
+
+        return ChassisSpeeds.fromFieldRelativeSpeeds(
+            speeds.vxMetersPerSecond * speedMultiplier,
+            speeds.vyMetersPerSecond * speedMultiplier,
+            speeds.omegaRadiansPerSecond * angularMultiplier,
+            getHeading());
       });
     } catch (Exception e) {
       DriverStation.reportError(e.toString(), true);
@@ -426,15 +479,28 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   public Command driveCommand(DoubleSupplier translationX, DoubleSupplier translationY,
       DoubleSupplier angularRotationX) {
+    double maxSpeed = isSlowMode ? Constants.MAX_SPEED * 0.4 : Constants.MAX_SPEED;
+    double maxAngularSpeed = isSlowMode ? swerveDrive.getMaximumChassisAngularVelocity() * 0.5
+        : swerveDrive.getMaximumChassisAngularVelocity();
+
     return run(() -> {
-      // Make the robot move
       swerveDrive.drive(SwerveMath.scaleTranslation(new Translation2d(
-          translationX.getAsDouble() * swerveDrive.getMaximumChassisVelocity(),
-          translationY.getAsDouble() * swerveDrive.getMaximumChassisVelocity()), 0.8),
-          Math.pow(angularRotationX.getAsDouble(), 3) * swerveDrive.getMaximumChassisAngularVelocity(),
+          translationX.getAsDouble() * maxSpeed,
+          translationY.getAsDouble() * maxSpeed), 0.8),
+          Math.pow(angularRotationX.getAsDouble(), 3) * maxAngularSpeed,
           true,
           false);
     });
+    // return run(() -> {
+    // // Make the robot move
+    // swerveDrive.drive(SwerveMath.scaleTranslation(new Translation2d(
+    // translationX.getAsDouble() * swerveDrive.getMaximumChassisVelocity(),
+    // translationY.getAsDouble() * swerveDrive.getMaximumChassisVelocity()), 0.8),
+    // Math.pow(angularRotationX.getAsDouble(), 3) *
+    // swerveDrive.getMaximumChassisAngularVelocity(),
+    // true,
+    // false);
+    // });
   }
 
   /**
@@ -664,13 +730,15 @@ public class SwerveSubsystem extends SubsystemBase {
    * @return {@link ChassisSpeeds} which can be sent to the Swerve Drive.
    */
   public ChassisSpeeds getTargetSpeeds(double xInput, double yInput, Rotation2d angle) {
-    Translation2d scaledInputs = SwerveMath.cubeTranslation(new Translation2d(xInput, yInput));
+    double maxSpeed = isSlowMode ? Constants.MAX_SPEED * 0.4 : Constants.MAX_SPEED;
 
-    return swerveDrive.swerveController.getTargetSpeeds(scaledInputs.getX(),
+    Translation2d scaledInputs = SwerveMath.cubeTranslation(new Translation2d(xInput, yInput));
+    return swerveDrive.swerveController.getTargetSpeeds(
+        scaledInputs.getX(),
         scaledInputs.getY(),
         angle.getRadians(),
         getHeading().getRadians(),
-        Constants.MAX_SPEED);
+        maxSpeed);
   }
 
   /**
@@ -740,4 +808,5 @@ public class SwerveSubsystem extends SubsystemBase {
   public SwerveDrive getSwerveDrive() {
     return swerveDrive;
   }
+
 }

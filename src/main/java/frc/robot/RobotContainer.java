@@ -10,6 +10,7 @@ import frc.robot.commands.AlignToReefTagRelative;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.Light;
 import frc.robot.subsystems.ManipulatorSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 import swervelib.SwerveInputStream;
@@ -48,6 +49,7 @@ public class RobotContainer {
         private final ManipulatorSubsystem manipulatorSubsystem = new ManipulatorSubsystem(elevatorSubsystem,
                         intakeSubsystem);
         private final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
+        private final Light lights = new Light();
 
         private final SendableChooser<Command> autoChooser;
         // Replace with CommandPS4Controller or CommandJoystick if needed
@@ -114,6 +116,7 @@ public class RobotContainer {
         private void configureDefaultCommand() {
                 // manipulatorSubsystem.setDefaultCommand(
                 // manipulatorSubsystem.continuousIntakeCommand());
+                // lights.setDefaultCommand(lights.runPattern(LEDPattern.solid(Color.kWhite)));
         }
 
         private void registerNamedCommands() {
@@ -143,6 +146,13 @@ public class RobotContainer {
                 NamedCommands.registerCommand("L2", scoreCommandWithTracking(Levels.L2));
                 NamedCommands.registerCommand("L3", scoreCommandWithTracking(Levels.L3));
                 NamedCommands.registerCommand("L4", scoreCommandWithTracking(Levels.L4));
+                // NamedCommands.registerCommand("resetElevator", new InstantCommand(() ->
+                // manipulatorSubsystem.rest ));
+                NamedCommands.registerCommand("L2Only",
+                                new InstantCommand(() -> manipulatorSubsystem.setLevel(Levels.L2)));
+                NamedCommands.registerCommand("L3Only",
+                                new InstantCommand(() -> manipulatorSubsystem.setLevel(Levels.L3)));
+
                 NamedCommands.registerCommand(
                                 "Intake", manipulatorSubsystem.intakeCommand());
                 NamedCommands.registerCommand(
@@ -154,8 +164,8 @@ public class RobotContainer {
                 NamedCommands.registerCommand("ClimberStop",
                                 climberSubsystem.stopCommand());
                 NamedCommands.registerCommand("CancelCommand", new InstantCommand(() -> cancelActiveScoreCommand()));
-                NamedCommands.registerCommand("AlignRight", new AlignToReefTagRelative(true, drivebase).withTimeout(3));
-                NamedCommands.registerCommand("AlignLeft", new AlignToReefTagRelative(false, drivebase).withTimeout(3));
+                NamedCommands.registerCommand("AlignRight", new AlignToReefTagRelative(true, drivebase).withTimeout(1.5));
+                NamedCommands.registerCommand("AlignLeft", new AlignToReefTagRelative(false, drivebase).withTimeout(1.5));
         }
 
         private void configureBindings() {
@@ -189,8 +199,6 @@ public class RobotContainer {
                                 .onFalse(NamedCommands.getCommand("IntakeStop"));
                 controller.L2().whileTrue(NamedCommands.getCommand("Release"))
                                 .onFalse(NamedCommands.getCommand("IntakeStop"));
-
-                controller.R1().onTrue(NamedCommands.getCommand("ToggleAlgae"));
                 controller.L1().onTrue(NamedCommands.getCommand("Home"));
 
                 controller.cross().whileTrue(NamedCommands.getCommand("L1"))
@@ -214,6 +222,7 @@ public class RobotContainer {
                 controller.povRight().whileTrue(NamedCommands.getCommand("AlignRight"));
                 controller.povLeft().whileTrue(NamedCommands.getCommand("AlignLeft"));
 
+                controller.R1().onTrue(new InstantCommand(() -> drivebase.setSlowMode()));
         }
 
         /**

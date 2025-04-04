@@ -15,9 +15,22 @@
                 }
               },
               {
-                "type": "named",
+                "type": "parallel",
                 "data": {
-                  "name": "AlignRight"
+                  "commands": [
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "L3Only"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "AlignRight"
+                      }
+                    }
+                  ]
                 }
               },
               {
@@ -30,6 +43,12 @@
                 "type": "path",
                 "data": {
                   "pathName": "J coral"
+                }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 1.0
                 }
               },
               {
@@ -57,9 +76,9 @@
                 }
               },
               {
-                "type": "named",
+                "type": "wait",
                 "data": {
-                  "name": "Intake"
+                  "waitTime": 1.0
                 }
               },
               {

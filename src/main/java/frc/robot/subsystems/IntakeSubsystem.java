@@ -23,9 +23,16 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class IntakeSubsystem extends SubsystemBase {
   private LaserCan lc;
+  private LaserCan innerLc;
   private final SparkMax intakeMotor;
   private final double speed = 0.25;
   private double intakeSpeed = 0;
+  private enum IntakeState {
+    IDLE,
+    RUNNING
+  }
+  
+  private IntakeState state = IntakeState.IDLE;
 
   private final Timer simulationTimer = new Timer();
 
@@ -36,7 +43,8 @@ public class IntakeSubsystem extends SubsystemBase {
     intakeMotor = new SparkMax(12, MotorType.kBrushless);
     intakeMotor.configure(intakeMotorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
 
-    lc = new LaserCan(0);
+    lc = new LaserCan(1);
+    innerLc = new LaserCan(2);
     try {
       lc.setRangingMode(LaserCan.RangingMode.SHORT);
       lc.setRegionOfInterest(new LaserCan.RegionOfInterest(8, 8, 16, 16));
@@ -44,16 +52,22 @@ public class IntakeSubsystem extends SubsystemBase {
     } catch (ConfigurationFailedException e) {
       System.out.println("Configuration failed! " + e);
     }
+    try {
+      innerLc.setRangingMode(LaserCan.RangingMode.SHORT);
+      innerLc.setRegionOfInterest(new LaserCan.RegionOfInterest(8, 8, 16, 16));
+      innerLc.setTimingBudget(LaserCan.TimingBudget.TIMING_BUDGET_20MS);
+    } catch (ConfigurationFailedException e) {
+      System.out.println("Configuration failed! " + e);
+    }
   }
 
   public void intake() {
-
     intakeSpeed = -0.13;
 
   }
 
   public void release() {
-    System.out.println("Release");
+    // System.out.println("Release");
     intakeSpeed = -0.5;
   }
 
@@ -69,12 +83,14 @@ public class IntakeSubsystem extends SubsystemBase {
   public boolean isSensorTriggered() {
     if (RobotBase.isSimulation()) {
       boolean triggered = simulationTimer.hasElapsed(0.75);
-      //System.out.println("Simulation mode: time = " + simulationTimer.get() + ", triggered = " + triggered);
+      // System.out.println("Simulation mode: time = " + simulationTimer.get() + ",
+      // triggered = " + triggered);
       return triggered;
     } else {
       LaserCan.Measurement measurement = lc.getMeasurement();
-      // if (measurement != null && measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
-      //   System.out.println("The target is " + measurement.distance_mm + "mm away!");
+      // if (measurement != null && measurement.status ==
+      // LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
+      // System.out.println("The target is " + measurement.distance_mm + "mm away!");
       // }
       return (measurement != null &&
           measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT &&
@@ -89,8 +105,37 @@ public class IntakeSubsystem extends SubsystemBase {
         .andThen(new InstantCommand(() -> stopIntake(), this));
   }
 
+  public boolean isInnerSensorTriggered() {
+    if (RobotBase.isSimulation()) {
+      return false; // or simulate a delay like in `isSensorTriggered`
+    } else {
+      LaserCan.Measurement measurement = innerLc.getMeasurement();
+      return (measurement != null &&
+          measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT &&
+          measurement.distance_mm < 100); // adjust threshold as needed
+    }
+  }
+
   @Override
   public void periodic() {
+    switch (state) {
+      case IDLE:
+        // Only start if inner is triggered and lc is NOT triggered
+        if (isInnerSensorTriggered() && !isSensorTriggered()) {
+          intake();
+          state = IntakeState.RUNNING;
+        }
+        break;
+  
+      case RUNNING:
+        // Stop if lc is triggered (we've passed the outer sensor)
+        if (isSensorTriggered()) {
+          stopIntake();
+          state = IntakeState.IDLE;
+        }
+        break;
+    }; // stop only if we've started already
+
     intakeMotor.set(intakeSpeed);
     Logger.recordOutput("Field/Robot/ManipulatorMechanism/intake", intakeSpeed);
     Logger.recordOutput("Field/Robot/ManipulatorMechanism/intakeSensor", isSensorTriggered());

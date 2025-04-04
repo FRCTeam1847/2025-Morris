@@ -19,12 +19,12 @@ public class ElevatorSubsystem extends SubsystemBase {
   private final RelativeEncoder leftEncoder;
   private final SparkClosedLoopController leftClosedLoopController;
 
-  private static final double GEAR_RATIO = 12.0; // 12:1 gearbox
+  private static final double GEAR_RATIO = 9.0; // 12:1 gearbox
   private static final double SPROCKET_DIAMETER_INCHES = 1.75; // Change this based on your actual sprocket diameter
   private static final double SPROCKET_CIRCUMFERENCE = SPROCKET_DIAMETER_INCHES * Math.PI; // inches per rev
-  private static final double kP = 0.06;
+  private static final double kP = 0.0725;
   private static final double kI = 0.0;
-  private static final double kD = 0.0;
+  private static final double kD = 0.01;
   private static final double MAX_HEIGHT = 27;
   private static final double HEIGHT_TOLERANCE = 1;
   private double currentHeight = 0.25;
@@ -42,7 +42,7 @@ public class ElevatorSubsystem extends SubsystemBase {
       leftConfig.closedLoop
           .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
           .p(kP).i(kI).d(kD).outputRange(-1, 1);
-      leftConfig.closedLoopRampRate(0.25); // slow it down maybe?
+      leftConfig.closedLoopRampRate(0.2); // slow it down maybe?
 
     } else {
       // MAXMotionConfig maxMotionConfig = new MAXMotionConfig()
@@ -77,7 +77,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   public void setTargetHeight(double heightInches) {
 
-    currentHeight = Math.max(0.25, Math.min(MAX_HEIGHT, heightInches)); // Clamp height
+    currentHeight = Math.max(0.5, Math.min(MAX_HEIGHT, heightInches)); // Clamp height
 
     // Convert height to motor rotations
     double requiredRotations = (currentHeight / SPROCKET_CIRCUMFERENCE) * GEAR_RATIO;

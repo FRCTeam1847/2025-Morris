@@ -90,7 +90,7 @@ public class ManipulatorSubsystem extends SubsystemBase {
         elevatorSubsystem.setTargetHeight(1);
         break;
       case L1:
-        elevatorSubsystem.setTargetHeight(3);
+        elevatorSubsystem.setTargetHeight(12);
         break;
       case L2:
         elevatorSubsystem.setTargetHeight(6.25);
@@ -166,10 +166,10 @@ public class ManipulatorSubsystem extends SubsystemBase {
         // Step 3: Only score if we have a coral
         new ConditionalCommand(
             new SequentialCommandGroup(
-                new WaitCommand(0.15), // Allow brief stabilization before scoring
+                //new WaitCommand(0.1), // Allow brief stabilization before scoring
                 new InstantCommand(() -> intakeSubsystem.release()), // Release the coral
-                new WaitUntilCommand(() -> !hasCoral()), // Wait until coral is fully released
-                new WaitCommand(0.15) // Short pause before moving home
+                new WaitUntilCommand(() -> !hasCoral())//, // Wait until coral is fully released
+                // new WaitCommand(0.025) // Short pause before moving home
             ),
             new InstantCommand(() -> System.out.println("Skipping scoring - No coral detected")), // Just log that we
                                                                                                   // are skipping
