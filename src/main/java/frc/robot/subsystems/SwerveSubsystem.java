@@ -103,13 +103,6 @@ public class SwerveSubsystem extends SubsystemBase {
    * @param directory Directory of swerve drive config files.
    */
 
-  private boolean isSlowMode = true;
-
-  public void setSlowMode() {
-    System.out.println("Setting slow mode");
-    this.isSlowMode = !isSlowMode;
-  }
-
   public SwerveSubsystem(File directory) {
     // Configure the Telemetry before creating the SwerveDrive to avoid unnecessary
     // objects being created.
@@ -204,10 +197,10 @@ public class SwerveSubsystem extends SubsystemBase {
       boolean isRecent = Timer.getFPGATimestamp() - visionPose.timestampSeconds < 0.5;
       boolean isCloseEnough = distance < 1.0 && rotationDiff < 30.0;
 
-       if (isRecent ) {
-      swerveDrive.addVisionMeasurement(visionEstimate, visionPose.timestampSeconds);
-     } 
-     //else {
+      if (isRecent) {
+        swerveDrive.addVisionMeasurement(visionEstimate, visionPose.timestampSeconds);
+      }
+      // else {
       // System.out.printf("[Vision %s] Rejected: Δx=%.2f, Δθ=%.1f°%n", camName,
       // distance, rotationDiff);
       // }
@@ -384,15 +377,8 @@ public class SwerveSubsystem extends SubsystemBase {
   public Command driveWithSetpointGeneratorFieldRelative(Supplier<ChassisSpeeds> fieldRelativeSpeeds) {
     try {
       return driveWithSetpointGenerator(() -> {
-        ChassisSpeeds speeds = fieldRelativeSpeeds.get();
-
-        double speedMultiplier = isSlowMode ? 0.4 : 1.0;
-        double angularMultiplier = isSlowMode ? 0.5 : 1.0;
-
         return ChassisSpeeds.fromFieldRelativeSpeeds(
-            speeds.vxMetersPerSecond * speedMultiplier,
-            speeds.vyMetersPerSecond * speedMultiplier,
-            speeds.omegaRadiansPerSecond * angularMultiplier,
+            fieldRelativeSpeeds.get(),
             getHeading());
       });
     } catch (Exception e) {
@@ -479,28 +465,25 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   public Command driveCommand(DoubleSupplier translationX, DoubleSupplier translationY,
       DoubleSupplier angularRotationX) {
-    double maxSpeed = isSlowMode ? Constants.MAX_SPEED * 0.4 : Constants.MAX_SPEED;
-    double maxAngularSpeed = isSlowMode ? swerveDrive.getMaximumChassisAngularVelocity() * 0.5
-        : swerveDrive.getMaximumChassisAngularVelocity();
 
-    return run(() -> {
-      swerveDrive.drive(SwerveMath.scaleTranslation(new Translation2d(
-          translationX.getAsDouble() * maxSpeed,
-          translationY.getAsDouble() * maxSpeed), 0.8),
-          Math.pow(angularRotationX.getAsDouble(), 3) * maxAngularSpeed,
-          true,
-          false);
-    });
     // return run(() -> {
-    // // Make the robot move
     // swerveDrive.drive(SwerveMath.scaleTranslation(new Translation2d(
-    // translationX.getAsDouble() * swerveDrive.getMaximumChassisVelocity(),
-    // translationY.getAsDouble() * swerveDrive.getMaximumChassisVelocity()), 0.8),
-    // Math.pow(angularRotationX.getAsDouble(), 3) *
-    // swerveDrive.getMaximumChassisAngularVelocity(),
+    // translationX.getAsDouble(),
+    // translationY.getAsDouble()), 1),
+    // Math.pow(angularRotationX.getAsDouble(), 3),
     // true,
     // false);
     // });
+    return run(() -> {
+      // Make the robot move
+      swerveDrive.drive(SwerveMath.scaleTranslation(new Translation2d(
+          translationX.getAsDouble() * swerveDrive.getMaximumChassisVelocity(),
+          translationY.getAsDouble() * swerveDrive.getMaximumChassisVelocity()), 1),
+          Math.pow(angularRotationX.getAsDouble(), 3) *
+              swerveDrive.getMaximumChassisAngularVelocity(),
+          true,
+          false);
+    });
   }
 
   /**
@@ -522,7 +505,7 @@ public class SwerveSubsystem extends SubsystemBase {
     return run(() -> {
 
       Translation2d scaledInputs = SwerveMath.scaleTranslation(new Translation2d(translationX.getAsDouble(),
-          translationY.getAsDouble()), 0.8);
+          translationY.getAsDouble()), 1);
 
       // Make the robot move
       driveFieldOriented(swerveDrive.swerveController.getTargetSpeeds(scaledInputs.getX(), scaledInputs.getY(),
@@ -730,15 +713,12 @@ public class SwerveSubsystem extends SubsystemBase {
    * @return {@link ChassisSpeeds} which can be sent to the Swerve Drive.
    */
   public ChassisSpeeds getTargetSpeeds(double xInput, double yInput, Rotation2d angle) {
-    double maxSpeed = isSlowMode ? Constants.MAX_SPEED * 0.4 : Constants.MAX_SPEED;
-
     Translation2d scaledInputs = SwerveMath.cubeTranslation(new Translation2d(xInput, yInput));
-    return swerveDrive.swerveController.getTargetSpeeds(
-        scaledInputs.getX(),
+    return swerveDrive.swerveController.getTargetSpeeds(scaledInputs.getX(),
         scaledInputs.getY(),
         angle.getRadians(),
         getHeading().getRadians(),
-        maxSpeed);
+        Constants.MAX_SPEED);
   }
 
   /**

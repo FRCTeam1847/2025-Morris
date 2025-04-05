@@ -88,7 +88,7 @@ public class RobotContainer {
                         () -> controller.getLeftX() * -1)
                         .withControllerRotationAxis(controller::getRightX)
                         .deadband(OperatorConstants.DEADBAND)
-                        .scaleTranslation(0.8)
+                        .scaleTranslation(1)
                         .allianceRelativeControl(true);
 
         SwerveInputStream driveAngularVelocitySim = SwerveInputStream.of(drivebase.getSwerveDrive(),
@@ -96,7 +96,7 @@ public class RobotContainer {
                         () -> -controller.getLeftX())
                         .withControllerRotationAxis(() -> controller.getRightX())
                         .deadband(OperatorConstants.DEADBAND)
-                        .scaleTranslation(0.8)
+                        .scaleTranslation(1)
                         .allianceRelativeControl(true);
 
         /**
@@ -164,8 +164,10 @@ public class RobotContainer {
                 NamedCommands.registerCommand("ClimberStop",
                                 climberSubsystem.stopCommand());
                 NamedCommands.registerCommand("CancelCommand", new InstantCommand(() -> cancelActiveScoreCommand()));
-                NamedCommands.registerCommand("AlignRight", new AlignToReefTagRelative(true, drivebase).withTimeout(1.5));
-                NamedCommands.registerCommand("AlignLeft", new AlignToReefTagRelative(false, drivebase).withTimeout(1.5));
+                NamedCommands.registerCommand("AlignRight",
+                                new AlignToReefTagRelative(true, drivebase).withTimeout(1.5));
+                NamedCommands.registerCommand("AlignLeft",
+                                new AlignToReefTagRelative(false, drivebase).withTimeout(1.5));
         }
 
         private void configureBindings() {
@@ -221,8 +223,6 @@ public class RobotContainer {
 
                 controller.povRight().whileTrue(NamedCommands.getCommand("AlignRight"));
                 controller.povLeft().whileTrue(NamedCommands.getCommand("AlignLeft"));
-
-                controller.R1().onTrue(new InstantCommand(() -> drivebase.setSlowMode()));
         }
 
         /**
