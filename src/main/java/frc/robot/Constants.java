@@ -22,9 +22,10 @@ import swervelib.math.Matter;
  */
 public final class Constants {
 
-  public static final double ROBOT_MASS = (148 - 20.3) * 0.453592; // 32lbs * kg per pound
+  private static final double robotWeight = 138; // 
+  public static final double ROBOT_MASS = robotWeight * 0.453592; // 32lbs * kg per pound
   public static final Matter CHASSIS = new Matter(new Translation3d(0, 0, Units.inchesToMeters(8)), ROBOT_MASS);
-  public static final double LOOP_TIME = 0.13; // s, 20ms + 110ms sprk max velocity lag
+  public static final double LOOP_TIME = 0.02; // s, 20ms + 110ms sprk max velocity lag // Old 0.13 0.02 for saftey. TEST 0.012
   public static final double MAX_SPEED = 4.0;
 
   public static final double X_REEF_ALIGNMENT_P = 2.5;
