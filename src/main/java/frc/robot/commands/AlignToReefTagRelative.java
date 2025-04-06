@@ -54,7 +54,7 @@ public class AlignToReefTagRelative extends Command {
       this.dontSeeTagTimer.reset();
 
       double[] postions = LimelightHelpers.getBotPose_TargetSpace("");
-      logAllPIDState(postions);
+      // logAllPIDState(postions);
 
       double xSpeed = xController.calculate(postions[2]);
       SmartDashboard.putNumber("xspee", xSpeed);

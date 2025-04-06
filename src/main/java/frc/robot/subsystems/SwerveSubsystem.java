@@ -35,8 +35,6 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.DriveFeedforwards;
 import com.pathplanner.lib.util.swerve.SwerveSetpoint;
 import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator;
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -46,8 +44,16 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -96,6 +102,63 @@ public class SwerveSubsystem extends SubsystemBase {
    * PhotonVision class to keep an accurate odometry.
    */
   // private Vision vision;
+
+  private final ShuffleboardTab reefTab = Shuffleboard.getTab("Reef Alignment");
+  /** Pose data */
+  private final GenericEntry xPoseEntry = reefTab.add("X Pose", 0.0)
+      .withPosition(0, 0).withSize(2, 1).getEntry();
+
+  private final GenericEntry xErrorEntry = reefTab.add("X Error", 0.0)
+      .withPosition(2, 0).withSize(2, 1).getEntry();
+  private final GenericEntry atXEntry = reefTab.add("At X Setpoint", false)
+      .withWidget(BuiltInWidgets.kBooleanBox)
+      .withPosition(5, 0).withSize(1, 1).getEntry();
+  private final GenericEntry xSetpointEntry = reefTab.add("X Setpoint", 0.0)
+      .withPosition(4, 0).withSize(1, 1).getEntry();
+
+  private final GenericEntry yPoseEntry = reefTab.add("Y Pose", 0.0)
+      .withPosition(0, 1).withSize(2, 1).getEntry();
+
+  private final GenericEntry yErrorLeftEntry = reefTab.add("Y Error to LEFT", 0.0)
+      .withPosition(2, 1).withSize(2, 1).getEntry();
+
+  private final GenericEntry yErrorRightEntry = reefTab.add("Y Error to RIGHT", 0.0)
+      .withPosition(4, 1).withSize(2, 1).getEntry();
+
+  private final GenericEntry yLeftSetpointEntry = reefTab.add("Y Setpoint Left", 0.0)
+      .withPosition(6, 1).withSize(1, 1).getEntry();
+
+  private final GenericEntry yRightSetpointEntry = reefTab.add("Y Setpoint Right", 0.0)
+      .withPosition(7, 1).withSize(1, 1).getEntry();
+
+  private final GenericEntry atLeftEntry = reefTab.add("At Left Setpoint", false)
+      .withWidget(BuiltInWidgets.kBooleanBox)
+      .withPosition(6, 0).withSize(1, 1).getEntry();
+
+  private final GenericEntry atRightEntry = reefTab.add("At Right Setpoint", false)
+      .withWidget(BuiltInWidgets.kBooleanBox)
+      .withPosition(7, 0).withSize(1, 1).getEntry();
+
+  private final GenericEntry rotPoseEntry = reefTab.add("Rot Pose", 0.0)
+      .withPosition(0, 2).withSize(2, 1).getEntry();
+      private final GenericEntry rotAngleEntry = reefTab.add("Rot (deg)", 0.0)
+      .withPosition(6, 2).withSize(2, 1).getEntry();
+
+  private final GenericEntry rotErrorEntry = reefTab.add("Rot Error", 0.0)
+      .withPosition(2, 2).withSize(2, 1).getEntry();
+
+  private final GenericEntry rotSetpointEntry = reefTab.add("Rot Setpoint", 0.0)
+      .withPosition(4, 2).withSize(1, 1).getEntry();
+  private final GenericEntry atRotEntry = reefTab.add("At Rot Setpoint", false)
+      .withWidget(BuiltInWidgets.kBooleanBox)
+      .withPosition(5, 2).withSize(1, 1).getEntry();
+
+  private final GenericEntry targetVisibleEntry = reefTab.add("Target Visible", false)
+      .withWidget(BuiltInWidgets.kBooleanBox)
+      .withPosition(8, 0).withSize(1, 1).getEntry();
+
+  private final GenericEntry closerSideEntry = reefTab.add("Closest Side", "N/A")
+      .withPosition(0, 3).withSize(2, 1).getEntry();
 
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
@@ -166,6 +229,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
+    logReefAlignmentDiagnostics();
     /** old way **/
 
     // LimelightHelpers.PoseEstimate visionPose;
@@ -787,6 +851,90 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   public SwerveDrive getSwerveDrive() {
     return swerveDrive;
+  }
+
+  public void logReefAlignmentDiagnostics() {
+    boolean targetVisible = LimelightHelpers.getTV("");
+    targetVisibleEntry.setBoolean(targetVisible);
+    SmartDashboard.putBoolean("Target Visible", targetVisible);
+
+    if (!targetVisible)
+      return;
+
+    double[] pos = LimelightHelpers.getBotPose_TargetSpace("");
+    double x = pos[2];
+    double y = pos[0];
+    double rot = pos[4]; // In radians
+    double rotDeg = Math.toDegrees(rot); // For visualization
+
+    // --- Log raw pose ---
+    xPoseEntry.setDouble(x);
+    yPoseEntry.setDouble(y);
+    rotPoseEntry.setDouble(rot);
+    rotAngleEntry.setDouble(rotDeg); // Degrees view
+
+    SmartDashboard.putNumber("X Pose", x);
+    SmartDashboard.putNumber("Y Pose", y);
+    SmartDashboard.putNumber("Rot Pose (rad)", rot);
+    SmartDashboard.putNumber("Rot Pose (deg)", rotDeg);
+
+    // --- Setpoints ---
+    double xSetpoint = Constants.X_SETPOINT_REEF_ALIGNMENT;
+    double rotSetpoint = Constants.ROT_SETPOINT_REEF_ALIGNMENT;
+    double ySetpointLeft = Constants.Y_SETPOINT_REEF_ALIGNMENT_LEFT;
+    double ySetpointRight = Constants.Y_SETPOINT_REEF_ALIGNMENT_RIGHT;
+
+    xSetpointEntry.setDouble(xSetpoint);
+    rotSetpointEntry.setDouble(rotSetpoint);
+    yLeftSetpointEntry.setDouble(ySetpointLeft);
+    yRightSetpointEntry.setDouble(ySetpointRight);
+
+    SmartDashboard.putNumber("X Setpoint", xSetpoint);
+    SmartDashboard.putNumber("Rot Setpoint", rotSetpoint);
+    SmartDashboard.putNumber("Y Setpoint Left", ySetpointLeft);
+    SmartDashboard.putNumber("Y Setpoint Right", ySetpointRight);
+
+    // --- Errors ---
+    double xError = xSetpoint - x;
+    double rotError = rotSetpoint - rot;
+
+    xErrorEntry.setDouble(xError);
+    rotErrorEntry.setDouble(rotError);
+
+    SmartDashboard.putNumber("X Error", xError);
+    SmartDashboard.putNumber("Rot Error", rotError);
+
+    // --- Tolerance checks for X and Rot only ---
+    boolean atX = Math.abs(xError) < Constants.X_TOLERANCE_REEF_ALIGNMENT;
+    boolean atRot = Math.abs(rotError) < Constants.ROT_TOLERANCE_REEF_ALIGNMENT;
+
+    atXEntry.setBoolean(atX);
+    atRotEntry.setBoolean(atRot);
+
+    SmartDashboard.putBoolean("At X Setpoint", atX);
+    SmartDashboard.putBoolean("At Rot Setpoint", atRot);
+
+    // --- At Left/Right full pose checks ---
+    boolean atYLeft = Math.abs(y - ySetpointLeft) < Constants.Y_TOLERANCE_REEF_ALIGNMENT;
+    boolean atLeft = atX && atYLeft && atRot;
+
+    atLeftEntry.setBoolean(atLeft);
+    SmartDashboard.putBoolean("At Left Setpoint", atLeft);
+    yErrorLeftEntry.setDouble(ySetpointLeft - y);
+    SmartDashboard.putNumber("Y Error to LEFT", ySetpointLeft - y);
+
+    boolean atYRight = Math.abs(y - ySetpointRight) < Constants.Y_TOLERANCE_REEF_ALIGNMENT;
+    boolean atRight = atX && atYRight && atRot;
+
+    atRightEntry.setBoolean(atRight);
+    SmartDashboard.putBoolean("At Right Setpoint", atRight);
+    yErrorRightEntry.setDouble(ySetpointRight - y);
+    SmartDashboard.putNumber("Y Error to RIGHT", ySetpointRight - y);
+
+    // --- Closer side ---
+    String closer = Math.abs(y - ySetpointLeft) < Math.abs(y - ySetpointRight) ? "Left" : "Right";
+    closerSideEntry.setString(closer);
+    SmartDashboard.putString("Closest Side", closer);
   }
 
 }
