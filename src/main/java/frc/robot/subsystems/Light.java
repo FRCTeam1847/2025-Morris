@@ -10,27 +10,27 @@ import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 
 public class Light extends SubsystemBase {
   private AddressableLED led;
   private AddressableLEDBuffer ledbuff;
-
+  private int bufferSize = Constants.ConfingValues.LIGHTSBUFFERSIZE;
 
   /** Creates a new Light. */
   public Light() {
-    led = new AddressableLED(9);
-    ledbuff = new AddressableLEDBuffer(12);
-    led.setLength(12);
+    led = new AddressableLED(Constants.ConfingValues.LightsPWMPORT);
+    ledbuff = new AddressableLEDBuffer(bufferSize);
+    led.setLength(bufferSize);
 
-    
-   // setDefaultCommand(ru);
-   setDefaultCommand(runPattern(LEDPattern.solid(Color.kWhite)).withName("lightsOn"));
-   led.start();
+    // setDefaultCommand(ru);
+    setDefaultCommand(runPattern(LEDPattern.solid(Color.kWhite)).withName("lightsOn"));
+    led.start();
   }
 
-  public Command runPattern(LEDPattern pattern){
+  public Command runPattern(LEDPattern pattern) {
     System.out.println("setting lights on");
-    return run(()-> pattern.applyTo(ledbuff));
+    return run(() -> pattern.applyTo(ledbuff));
   }
 
   @Override

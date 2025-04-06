@@ -20,18 +20,20 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
+import frc.robot.Constants.Levels;
 
 public class IntakeSubsystem extends SubsystemBase {
-  private LaserCan lc;
-  private LaserCan innerLc;
+  private LaserCan outerLaserCAN;
+  private LaserCan innerLaserCAN;
   private final SparkMax intakeMotor;
-  private final double speed = 0.25;
   private double intakeSpeed = 0;
+
   private enum IntakeState {
     IDLE,
     RUNNING
   }
-  
+
   private IntakeState state = IntakeState.IDLE;
 
   private final Timer simulationTimer = new Timer();
@@ -40,35 +42,37 @@ public class IntakeSubsystem extends SubsystemBase {
   public IntakeSubsystem() {
     SparkMaxConfig intakeMotorConfig = new SparkMaxConfig();
     intakeMotorConfig.smartCurrentLimit(20);
-    intakeMotor = new SparkMax(12, MotorType.kBrushless);
+    intakeMotor = new SparkMax(Constants.ConfingValues.IntakeCANID, MotorType.kBrushless);
     intakeMotor.configure(intakeMotorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
 
-    lc = new LaserCan(1);
-    innerLc = new LaserCan(2);
+    outerLaserCAN = new LaserCan(Constants.ConfingValues.OuterLaserCANCANID);
+    innerLaserCAN = new LaserCan(Constants.ConfingValues.InnerLaserCANID);
     try {
-      lc.setRangingMode(LaserCan.RangingMode.SHORT);
-      lc.setRegionOfInterest(new LaserCan.RegionOfInterest(8, 8, 16, 16));
-      lc.setTimingBudget(LaserCan.TimingBudget.TIMING_BUDGET_20MS);
+      outerLaserCAN.setRangingMode(LaserCan.RangingMode.SHORT);
+      outerLaserCAN.setRegionOfInterest(new LaserCan.RegionOfInterest(8, 8, 16, 16));
+      outerLaserCAN.setTimingBudget(LaserCan.TimingBudget.TIMING_BUDGET_20MS);
     } catch (ConfigurationFailedException e) {
       System.out.println("Configuration failed! " + e);
     }
     try {
-      innerLc.setRangingMode(LaserCan.RangingMode.SHORT);
-      innerLc.setRegionOfInterest(new LaserCan.RegionOfInterest(8, 8, 16, 16));
-      innerLc.setTimingBudget(LaserCan.TimingBudget.TIMING_BUDGET_20MS);
+      innerLaserCAN.setRangingMode(LaserCan.RangingMode.SHORT);
+      innerLaserCAN.setRegionOfInterest(new LaserCan.RegionOfInterest(8, 8, 16, 16));
+      innerLaserCAN.setTimingBudget(LaserCan.TimingBudget.TIMING_BUDGET_20MS);
     } catch (ConfigurationFailedException e) {
       System.out.println("Configuration failed! " + e);
     }
   }
 
   public void intake() {
-    intakeSpeed = -0.13;
-
+    intakeSpeed = Constants.INTAKESPEED;
   }
 
-  public void release() {
-    // System.out.println("Release");
-    intakeSpeed = -0.5;
+  public void release(Levels level) {
+    if (level == Levels.L1) {
+      intakeSpeed = Constants.L1RELEASESPEED;
+    } else {
+      intakeSpeed = Constants.RELEASESPEED;
+    }
   }
 
   public void stopIntake() {
@@ -80,14 +84,14 @@ public class IntakeSubsystem extends SubsystemBase {
     simulationTimer.start();
   }
 
-  public boolean isSensorTriggered() {
+  public boolean isOuterSensorTriggered() {
     if (RobotBase.isSimulation()) {
       boolean triggered = simulationTimer.hasElapsed(0.75);
       // System.out.println("Simulation mode: time = " + simulationTimer.get() + ",
       // triggered = " + triggered);
       return triggered;
     } else {
-      LaserCan.Measurement measurement = lc.getMeasurement();
+      LaserCan.Measurement measurement = outerLaserCAN.getMeasurement();
       // if (measurement != null && measurement.status ==
       // LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
       // System.out.println("The target is " + measurement.distance_mm + "mm away!");
@@ -101,7 +105,7 @@ public class IntakeSubsystem extends SubsystemBase {
   public Command intakeCommand() {
     return new InstantCommand(() -> resetSimulationTimer(), this)
         .andThen(new RunCommand(() -> intake(), this))
-        .until(this::isSensorTriggered)
+        .until(this::isOuterSensorTriggered)
         .andThen(new InstantCommand(() -> stopIntake(), this));
   }
 
@@ -109,7 +113,7 @@ public class IntakeSubsystem extends SubsystemBase {
     if (RobotBase.isSimulation()) {
       return false; // or simulate a delay like in `isSensorTriggered`
     } else {
-      LaserCan.Measurement measurement = innerLc.getMeasurement();
+      LaserCan.Measurement measurement = innerLaserCAN.getMeasurement();
       return (measurement != null &&
           measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT &&
           measurement.distance_mm < 100); // adjust threshold as needed
@@ -121,23 +125,25 @@ public class IntakeSubsystem extends SubsystemBase {
     switch (state) {
       case IDLE:
         // Only start if inner is triggered and lc is NOT triggered
-        if (isInnerSensorTriggered() && !isSensorTriggered()) {
+        if (isInnerSensorTriggered() && !isOuterSensorTriggered()) {
           intake();
           state = IntakeState.RUNNING;
         }
         break;
-  
+
       case RUNNING:
         // Stop if lc is triggered (we've passed the outer sensor)
-        if (isSensorTriggered()) {
+        if (isOuterSensorTriggered()) {
           stopIntake();
           state = IntakeState.IDLE;
         }
         break;
-    }; // stop only if we've started already
+    }
+    ; // stop only if we've started already
 
     intakeMotor.set(intakeSpeed);
     Logger.recordOutput("Field/Robot/ManipulatorMechanism/intake", intakeSpeed);
-    Logger.recordOutput("Field/Robot/ManipulatorMechanism/intakeSensor", isSensorTriggered());
+    Logger.recordOutput("Field/Robot/ManipulatorMechanism/intakeOuterSensor", isOuterSensorTriggered());
+    Logger.recordOutput("Field/Robot/ManipulatorMechanism/intakeInnerSensor", isInnerSensorTriggered());
   }
 }

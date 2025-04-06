@@ -16,6 +16,7 @@ import frc.robot.subsystems.SwerveSubsystem;
 import swervelib.SwerveInputStream;
 
 import java.io.File;
+import java.util.Set;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -26,8 +27,8 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 
 /**
@@ -44,7 +45,7 @@ public class RobotContainer {
         // "swerve");
         private final SwerveSubsystem drivebase = new SwerveSubsystem(
                         new File(Filesystem.getDeployDirectory(), "swerve/kraken"));
-        private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem(false);
+        private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
         private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
         private final ManipulatorSubsystem manipulatorSubsystem = new ManipulatorSubsystem(elevatorSubsystem,
                         intakeSubsystem);
@@ -57,28 +58,6 @@ public class RobotContainer {
 
         private Command activeScoreCommand = null;
 
-        /**
-         * Clone's the angular velocity input stream and converts it to a fieldRelative
-         * input stream.
-         */
-        // SwerveInputStream driveDirectAngle = driveAngularVelocity.copy()
-        // .withControllerHeadingAxis(driverXbox::getRightX,
-        // driverXbox::getRightY)
-        // .headingWhile(true);
-        // Derive the heading axis with math!
-        // SwerveInputStream driveDirectAngleSim = driveAngularVelocitySim.copy()
-        // .withControllerHeadingAxis(() -> Math.sin(
-        // driverXbox.getRawAxis(
-        // 2) * Math.PI)
-        // * (Math.PI * 2),
-        // () -> Math.cos(
-        // driverXbox.getRawAxis(
-        // 2) * Math.PI)
-        // *
-        // (Math.PI * 2))
-        // .headingWhile(true);
-
-        //// DRIVE Setup
         /**
          * Converts driver input into a field-relative ChassisSpeeds that is controlled
          * by angular velocity.
@@ -114,9 +93,6 @@ public class RobotContainer {
         }
 
         private void configureDefaultCommand() {
-                // manipulatorSubsystem.setDefaultCommand(
-                // manipulatorSubsystem.continuousIntakeCommand());
-                // lights.setDefaultCommand(lights.runPattern(LEDPattern.solid(Color.kWhite)));
         }
 
         private void registerNamedCommands() {
@@ -125,23 +101,6 @@ public class RobotContainer {
                                 new InstantCommand(
                                                 () -> manipulatorSubsystem.setLevel(Levels.Home),
                                                 manipulatorSubsystem));
-                NamedCommands.registerCommand(
-                                "CoralStation",
-                                new InstantCommand(
-                                                () -> manipulatorSubsystem.setLevel(Levels.CoralStation),
-                                                manipulatorSubsystem));
-                // NamedCommands.registerCommand(
-                // "L1",
-                // new InstantCommand(() -> startScoreCommand(Levels.L1)));
-                // NamedCommands.registerCommand(
-                // "L2",
-                // new InstantCommand(() -> startScoreCommand(Levels.L2)));
-                // NamedCommands.registerCommand(
-                // "L3",
-                // new InstantCommand(() -> startScoreCommand(Levels.L3)));
-                // NamedCommands.registerCommand(
-                // "L4",
-                // new InstantCommand(() -> startScoreCommand(Levels.L4)));
                 NamedCommands.registerCommand("L1", scoreCommandWithTracking(Levels.L1));
                 NamedCommands.registerCommand("L2", scoreCommandWithTracking(Levels.L2));
                 NamedCommands.registerCommand("L3", scoreCommandWithTracking(Levels.L3));
@@ -165,22 +124,12 @@ public class RobotContainer {
                                 climberSubsystem.stopCommand());
                 NamedCommands.registerCommand("CancelCommand", new InstantCommand(() -> cancelActiveScoreCommand()));
                 NamedCommands.registerCommand("AlignRight",
-                                new AlignToReefTagRelative(true, drivebase).withTimeout(1.5));
+                                new AlignToReefTagRelative(true, drivebase).withTimeout(Constants.ALIGN_TIMEOUT));
                 NamedCommands.registerCommand("AlignLeft",
-                                new AlignToReefTagRelative(false, drivebase).withTimeout(1.5));
+                                new AlignToReefTagRelative(false, drivebase).withTimeout(Constants.ALIGN_TIMEOUT));
         }
 
         private void configureBindings() {
-                // Command driveFieldOrientedDirectAngle =
-                // drivebase.driveFieldOriented(driveDirectAngle);
-                // Command driveSetpointGenSim =
-                // drivebase.driveWithSetpointGeneratorFieldRelative(
-                // driveDirectAngleSim);
-                // Command driveSetpointGen =
-                // drivebase.driveWithSetpointGeneratorFieldRelative(driveDirectAngle);
-                // Command driveFieldOrientedDirectAngleSim =
-                // drivebase.driveFieldOriented(driveDirectAngleSim);
-
                 Command driveFieldOrientedAnglularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
                 Command driveFieldOrientedAnglularVelocitySim = drivebase.driveFieldOriented(driveAngularVelocitySim);
 
@@ -190,31 +139,24 @@ public class RobotContainer {
                         drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
                 }
 
-                // if (Robot.isSimulation()) {
-                // driverXbox.PS().onTrue(Commands.runOnce(() -> drivebase.resetOdometry(new
-                // Pose2d(3, 3, new Rotation2d()))));
-                // driverXbox.button(1).whileTrue(drivebase.sysIdDriveMotorCommand());
-
-                // }
-
                 controller.R2().whileTrue(NamedCommands.getCommand("Intake"))
                                 .onFalse(NamedCommands.getCommand("IntakeStop"));
+
                 controller.L2().whileTrue(NamedCommands.getCommand("Release"))
                                 .onFalse(NamedCommands.getCommand("IntakeStop"));
                 controller.L1().onTrue(NamedCommands.getCommand("Home"));
 
                 controller.cross().whileTrue(NamedCommands.getCommand("L1"))
                                 .onFalse(NamedCommands.getCommand("CancelCommand"));
-                ;
+
                 controller.circle().whileTrue(NamedCommands.getCommand("L2"))
                                 .onFalse(NamedCommands.getCommand("CancelCommand"));
-                ;
+
                 controller.triangle().whileTrue(NamedCommands.getCommand("L4"))
                                 .onFalse(NamedCommands.getCommand("CancelCommand"));
-                ;
+
                 controller.square().whileTrue(NamedCommands.getCommand("L3"))
                                 .onFalse(NamedCommands.getCommand("CancelCommand"));
-                ;
 
                 controller.povUp().whileTrue(NamedCommands.getCommand("ClimberUp"))
                                 .onFalse(NamedCommands.getCommand("ClimberStop"));
@@ -231,8 +173,7 @@ public class RobotContainer {
          * @return the command to run in autonomous
          */
         public Command getAutonomousCommand() {
-                // An example command will be run in autonomous
-                return autoChooser.getSelected();// drivebase.getAutonomousCommand("New Auto");
+                return autoChooser.getSelected();
         }
 
         public void setMotorBrake(boolean brake) {
@@ -244,26 +185,24 @@ public class RobotContainer {
                         System.out.println("Cancelling ScoreAtLevelCommand...");
                         activeScoreCommand.cancel();
                         activeScoreCommand = null;
-
-                        // Restore normal acceleration when canceling
-                        // drivebase.setReduceAcceleration(false);
                 }
         }
 
-        private void startScoreCommand(Levels level) {
-                cancelActiveScoreCommand(); // Ensure no other ScoreAtLevelCommand is running
-
-                // Reduce acceleration if we are scoring at L3 or L4
-                // boolean reduceAcceleration = (level == Levels.L3 || level == Levels.L4);
-                // drivebase.setReduceAcceleration(reduceAcceleration);
-
-                activeScoreCommand = manipulatorSubsystem.ScoreAtLevelParallelCommand(level);
-                activeScoreCommand.schedule();
-        }
-
         private Command scoreCommandWithTracking(Levels level) {
-                return new ProxyCommand(() -> {
-                        cancelActiveScoreCommand(); // Cancel any running score command first
+                /** TEST THIS */
+                // return new ProxyCommand(() -> {
+                // cancelActiveScoreCommand(); // Cancel any running score command first
+                // Command cmd = manipulatorSubsystem.ScoreAtLevelParallelCommand(level)
+                // .finallyDo(() -> {
+                // System.out.println("Finished ScoreAtLevel for " + level);
+                // activeScoreCommand = null;
+                // });
+                // activeScoreCommand = cmd;
+                // return cmd;
+                // });
+
+                return new DeferredCommand(() -> {
+                        cancelActiveScoreCommand();
                         Command cmd = manipulatorSubsystem.ScoreAtLevelParallelCommand(level)
                                         .finallyDo(() -> {
                                                 System.out.println("Finished ScoreAtLevel for " + level);
@@ -271,6 +210,6 @@ public class RobotContainer {
                                         });
                         activeScoreCommand = cmd;
                         return cmd;
-                });
+                }, Set.of(manipulatorSubsystem));
         }
 }

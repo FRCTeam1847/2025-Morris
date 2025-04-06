@@ -2,6 +2,8 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
+
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
@@ -25,41 +27,20 @@ public class ElevatorSubsystem extends SubsystemBase {
   private static final double kP = 0.0725;
   private static final double kI = 0.0;
   private static final double kD = 0.01;
-  private static final double MAX_HEIGHT = 27;
   private static final double HEIGHT_TOLERANCE = 1;
-  private double currentHeight = 0.25;
-  private boolean isMAXMotionEnabled;
+  private double currentHeight = Constants.ConfingValues.ELEVATOR_MIN_HEIGHT;
 
-  public ElevatorSubsystem(boolean smartMotion) {
-    leftMotor = new SparkMax(11, MotorType.kBrushless);
-    rightMotor = new SparkMax(10, MotorType.kBrushless);
-    isMAXMotionEnabled = smartMotion;
+  public ElevatorSubsystem() {
+    leftMotor = new SparkMax(Constants.ConfingValues.ELEVATORLEFTCANID, MotorType.kBrushless);
+    rightMotor = new SparkMax(Constants.ConfingValues.ELEVATORRIGHTCANID, MotorType.kBrushless);
     SparkMaxConfig leftConfig = new SparkMaxConfig();
     leftConfig.encoder
         .positionConversionFactor(1.0)
         .velocityConversionFactor(1.0);
-    if (!smartMotion) {
-      leftConfig.closedLoop
-          .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-          .p(kP).i(kI).d(kD).outputRange(-1, 1);
-      leftConfig.closedLoopRampRate(0.2); // slow it down maybe?
-
-    } else {
-      // MAXMotionConfig maxMotionConfig = new MAXMotionConfig()
-      // .maxVelocity(1000000) // Set the maximum velocity (in RPM)
-      // .maxAcceleration(200000) // Set the maximum acceleration (in RPM per second)
-      // .allowedClosedLoopError(0.05) // Set the allowed closed-loop error (in
-      // rotations)
-      // .positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal); // Choose the
-      // position control mode
-
-      // // Apply the MAXMotion configuration to the closed-loop settings
-      // leftConfig.closedLoop
-      // .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-      // .p(kP).i(kI).d(kD)
-      // .apply(maxMotionConfig) // Apply the MAXMotion configuration
-      // .outputRange(-1, 1); // Set the output range
-    }
+    leftConfig.closedLoop
+        .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+        .p(kP).i(kI).d(kD).outputRange(-1, 1);
+    leftConfig.closedLoopRampRate(0.2); // slow it down maybe?
 
     leftConfig.inverted(false);
     leftMotor.configure(leftConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
@@ -77,14 +58,14 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   public void setTargetHeight(double heightInches) {
 
-    currentHeight = Math.max(0.5, Math.min(MAX_HEIGHT, heightInches)); // Clamp height
+    currentHeight = Math.max(Constants.ConfingValues.ELEVATOR_MIN_HEIGHT,
+        Math.min(Constants.ConfingValues.ELEVATOR_MAX_HEIGHT, heightInches)); // Clamp height
 
     // Convert height to motor rotations
     double requiredRotations = (currentHeight / SPROCKET_CIRCUMFERENCE) * GEAR_RATIO;
 
     // Set motor position control
-    leftClosedLoopController.setReference(requiredRotations,
-        isMAXMotionEnabled ? ControlType.kMAXMotionPositionControl : ControlType.kPosition);
+    leftClosedLoopController.setReference(requiredRotations, ControlType.kPosition);
   }
 
   public double getTargetHeight() {
