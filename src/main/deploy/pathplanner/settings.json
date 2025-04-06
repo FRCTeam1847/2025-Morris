@@ -6,20 +6,18 @@
     "Left Paths",
     "Right Paths"
   ],
-  "autoFolders": [
-    "SimTest"
-  ],
+  "autoFolders": [],
   "defaultMaxVel": 4.7,
   "defaultMaxAccel": 5.0,
   "defaultMaxAngVel": 540.0,
   "defaultMaxAngAccel": 720.0,
   "defaultNominalVoltage": 12.0,
-  "robotMass": 56.699,
+  "robotMass": 62.6,
   "robotMOI": 6.243,
   "robotTrackwidth": 0.546,
   "driveWheelRadius": 0.102,
   "driveGearing": 8.14,
-  "maxDriveSpeed": 13.5,
+  "maxDriveSpeed": 12.9,
   "driveMotorType": "krakenX60",
   "driveCurrentLimit": 40.0,
   "wheelCOF": 1.19,

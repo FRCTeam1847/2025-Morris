@@ -11,31 +11,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Left-J"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "AlignRight"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "L4"
-                }
-              },
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "J coral"
-                }
-              },
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Coral L"
+                  "pathName": "Right-F"
                 }
               },
               {
@@ -53,19 +29,61 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "L Coral"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Intake"
+                  "pathName": "F-Coral"
                 }
               },
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Coral L"
+                  "pathName": "Coral-D"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "AlignRight"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "L4"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "D-Coral"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Coral-D"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "AlignLeft"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "L4"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "D-Coral"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Coral-B"
                 }
               },
               {

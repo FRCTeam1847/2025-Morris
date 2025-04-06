@@ -15,22 +15,9 @@
                 }
               },
               {
-                "type": "parallel",
+                "type": "named",
                 "data": {
-                  "commands": [
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "L3Only"
-                      }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "AlignRight"
-                      }
-                    }
-                  ]
+                  "name": "AlignRight"
                 }
               },
               {
@@ -43,12 +30,6 @@
                 "type": "path",
                 "data": {
                   "pathName": "J coral"
-                }
-              },
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 1.0
                 }
               },
               {
@@ -76,12 +57,6 @@
                 }
               },
               {
-                "type": "wait",
-                "data": {
-                  "waitTime": 1.0
-                }
-              },
-              {
                 "type": "path",
                 "data": {
                   "pathName": "Coral L"
@@ -97,6 +72,18 @@
                 "type": "named",
                 "data": {
                   "name": "L4"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "L Coral"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Coral A"
                 }
               }
             ]
