@@ -45,13 +45,10 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.GenericEntry;
-import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -60,6 +57,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
 import frc.robot.LimelightHelpers;
+import frc.robot.QuestNav;
 
 //import frc.robot.subsystems.swervedrive.Vision.Cameras;
 import java.io.File;
@@ -141,7 +139,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
   private final GenericEntry rotPoseEntry = reefTab.add("Rot Pose", 0.0)
       .withPosition(0, 2).withSize(2, 1).getEntry();
-      private final GenericEntry rotAngleEntry = reefTab.add("Rot (deg)", 0.0)
+  private final GenericEntry rotAngleEntry = reefTab.add("Rot (deg)", 0.0)
       .withPosition(6, 2).withSize(2, 1).getEntry();
 
   private final GenericEntry rotErrorEntry = reefTab.add("Rot Error", 0.0)
@@ -159,6 +157,12 @@ public class SwerveSubsystem extends SubsystemBase {
 
   private final GenericEntry closerSideEntry = reefTab.add("Closest Side", "N/A")
       .withPosition(0, 3).withSize(2, 1).getEntry();
+
+  private final boolean useQuestNav = false; // Toggle this to enable/disable QuestNav
+  private final QuestNav questNav = new QuestNav();
+
+  Translation2d questNavOffset = new Translation2d(-0.35, 0.3); // back left corner (example)
+  Rotation2d questNavRotationOffset = Rotation2d.fromDegrees(180); // it's facing backward
 
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
@@ -246,9 +250,14 @@ public class SwerveSubsystem extends SubsystemBase {
     Pose2d currentPose = getPose();
 
     // Helper method to validate and add each vision estimate
-    addValidVisionMeasurement(visionPose1, currentPose, "limelight");
-    addValidVisionMeasurement(visionPose2, currentPose, "limelight-main");
+    if (!useQuestNav) {
+      addValidVisionMeasurement(visionPose1, currentPose, "limelight");
+      addValidVisionMeasurement(visionPose2, currentPose, "limelight-main");
+    }
     Logger.recordOutput("Field/Robot", new Pose3d(getPose()));
+    Logger.recordOutput("QuestNav/Pose", questNav.getPose());
+    Logger.recordOutput("QuestNav/Quaternion", questNav.getQuaternion());
+
   }
 
   private void addValidVisionMeasurement(LimelightHelpers.PoseEstimate visionPose, Pose2d currentPose, String camName) {
@@ -658,6 +667,9 @@ public class SwerveSubsystem extends SubsystemBase {
    * @param initialHolonomicPose The pose to set the odometry to
    */
   public void resetOdometry(Pose2d initialHolonomicPose) {
+    if (useQuestNav) {
+      questNav.zeroPosition(); // Reset QuestNav state
+    }
     swerveDrive.resetOdometry(initialHolonomicPose);
   }
 
@@ -668,7 +680,21 @@ public class SwerveSubsystem extends SubsystemBase {
    * @return The robot's pose
    */
   public Pose2d getPose() {
-    return swerveDrive.getPose();
+    return useQuestNav ? getCorrectedQuestNavPose() : swerveDrive.getPose();
+  }
+
+  public Pose2d getCorrectedQuestNavPose() {
+    Pose2d rawPose = questNav.getPose();
+
+    // Step 1: Rotate the pose to match robot's coordinate frame
+    Rotation2d correctedRotation = rawPose.getRotation().plus(questNavRotationOffset);
+
+    // Step 2: Translate QuestNav's position to the robot center (account for robot
+    // heading)
+    Translation2d rotatedOffset = questNavOffset.rotateBy(correctedRotation);
+    Translation2d correctedTranslation = rawPose.getTranslation().plus(rotatedOffset);
+
+    return new Pose2d(correctedTranslation, correctedRotation);
   }
 
   /**
@@ -742,7 +768,7 @@ public class SwerveSubsystem extends SubsystemBase {
    * @return The yaw angle
    */
   public Rotation2d getHeading() {
-    return getPose().getRotation();
+    return useQuestNav ? questNav.getPose().getRotation() : swerveDrive.getPose().getRotation();
   }
 
   /**
