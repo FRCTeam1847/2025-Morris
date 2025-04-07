@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -73,6 +74,9 @@ public class ElevatorSubsystem extends SubsystemBase {
   }
 
   public double getElevatorHeight() {
+    if (RobotBase.isSimulation()) {
+      return currentHeight;
+    }
     double motorRotations = leftEncoder.getPosition(); // Motor shaft rotations
     double elevatorRotations = motorRotations / GEAR_RATIO; // Convert to elevator shaft rotations
     return elevatorRotations * SPROCKET_CIRCUMFERENCE; // Convert to inches

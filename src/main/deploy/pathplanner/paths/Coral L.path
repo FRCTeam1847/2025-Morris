@@ -8,20 +8,20 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.476067549010491,
-        "y": 6.3936990709016195
+        "x": 2.249076084818271,
+        "y": 6.5650837229137124
       },
       "isLocked": false,
       "linkedName": "CoralLeft"
     },
     {
       "anchor": {
-        "x": 3.8273936170212766,
-        "y": 5.347473404255318
+        "x": 3.6826236101434313,
+        "y": 5.166247300876625
       },
       "prevControl": {
-        "x": 3.11067167747591,
-        "y": 6.021944091620047
+        "x": 3.124173839542319,
+        "y": 5.87715123523835
       },
       "nextControl": null,
       "isLocked": false,
@@ -33,16 +33,16 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 4.5,
-    "maxAcceleration": 3.0,
+    "maxVelocity": 4.0,
+    "maxAcceleration": 6.0,
     "maxAngularVelocity": 540.0,
-    "maxAngularAcceleration": 720.0,
+    "maxAngularAcceleration": 1080.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -59.826479970355635
+    "rotation": -59.32271997820344
   },
   "reversed": false,
   "folder": "Left Paths",

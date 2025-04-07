@@ -7,10 +7,10 @@
     "Right Paths"
   ],
   "autoFolders": [],
-  "defaultMaxVel": 4.7,
-  "defaultMaxAccel": 5.0,
+  "defaultMaxVel": 4.0,
+  "defaultMaxAccel": 6.0,
   "defaultMaxAngVel": 540.0,
-  "defaultMaxAngAccel": 720.0,
+  "defaultMaxAngAccel": 1080.0,
   "defaultNominalVoltage": 12.0,
   "robotMass": 62.6,
   "robotMOI": 6.243,

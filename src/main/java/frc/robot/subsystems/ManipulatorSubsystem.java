@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
@@ -111,9 +112,10 @@ public class ManipulatorSubsystem extends SubsystemBase {
   public Command ScoreAtLevelParallelCommand(Levels level) {
     System.out.println("ScoreAtLevelParallelCommand Started");
 
-    return new SequentialCommandGroup(
+    Command scoreSequence = new SequentialCommandGroup(
         // Step 1: Intake only if we DON'T already have a coral
         new ParallelCommandGroup(
+            new InstantCommand(() -> intakeSubsystem.resetSimulationTimer()),
             new ConditionalCommand(
                 new SequentialCommandGroup(
                     new InstantCommand(() -> intakeSubsystem.intake()), // Start intaking
@@ -132,7 +134,7 @@ public class ManipulatorSubsystem extends SubsystemBase {
         // Ensure the elevator is at height before proceeding (even if intake was
         // skipped)
         new WaitUntilCommand(this::isAtHeight),
-
+        new InstantCommand(() -> intakeSubsystem.resetSimulationTimer()),
         // Step 3: Only score if we have a coral
         new ConditionalCommand(
             new SequentialCommandGroup(
@@ -156,6 +158,13 @@ public class ManipulatorSubsystem extends SubsystemBase {
       System.out.println("ScoreAtLevelCommand Ended. Stopping Intake.");
       intakeSubsystem.stopIntake();
     });
+
+    // ✅ Only skip if we're in auto AND there's no coral
+    return new ConditionalCommand(
+        scoreSequence,
+        new InstantCommand(() -> System.out.println("Skipped scoring: No coral + in AUTO")),
+        () -> !DriverStation.isAutonomous() || hasInnerCoral() // Only run if not auto or coral is present
+    );
   }
 
   public Command releaseCommand() {
@@ -176,6 +185,10 @@ public class ManipulatorSubsystem extends SubsystemBase {
 
   public boolean hasCoral() {
     return intakeSubsystem.isOuterSensorTriggered();
+  }
+
+  public boolean hasInnerCoral() {
+    return intakeSubsystem.isInnerSensorTriggered();
   }
 
   public boolean hasNoCoral() {

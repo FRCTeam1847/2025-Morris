@@ -8,20 +8,20 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.0922064076440203,
-        "y": 1.595040306611594
+        "x": 2.075793123106611,
+        "y": 1.4363564314554131
       },
       "isLocked": false,
       "linkedName": "CoralRight"
     },
     {
       "anchor": {
-        "x": 2.9300085616438354,
-        "y": 3.9573844178082194
+        "x": 3.1181029648016994,
+        "y": 3.938732085108852
       },
       "prevControl": {
-        "x": 3.0065153370690987,
-        "y": 4.198518044378163
+        "x": 3.20922403395447,
+        "y": 4.171534470741937
       },
       "nextControl": null,
       "isLocked": false,
@@ -33,10 +33,10 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 4.7,
-    "maxAcceleration": 5.0,
+    "maxVelocity": 4.0,
+    "maxAcceleration": 6.0,
     "maxAngularVelocity": 540.0,
-    "maxAngularAcceleration": 720.0,
+    "maxAngularAcceleration": 1080.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },

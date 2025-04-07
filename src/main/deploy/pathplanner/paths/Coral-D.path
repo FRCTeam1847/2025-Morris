@@ -8,20 +8,20 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.5822030415920434,
-        "y": 1.613143686765135
+        "x": 2.351629939477225,
+        "y": 1.2650818037249372
       },
       "isLocked": false,
       "linkedName": "CoralRight"
     },
     {
       "anchor": {
-        "x": 3.8014982876712327,
-        "y": 2.7703553082191785
+        "x": 3.770691437337784,
+        "y": 2.7910145301667173
       },
       "prevControl": {
-        "x": 3.9890270876926293,
-        "y": 2.9701752576592373
+        "x": 3.9905688049182144,
+        "y": 3.0261011612046937
       },
       "nextControl": null,
       "isLocked": false,
@@ -33,16 +33,16 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 4.7,
-    "maxAcceleration": 5.0,
+    "maxVelocity": 4.0,
+    "maxAcceleration": 6.0,
     "maxAngularVelocity": 540.0,
-    "maxAngularAcceleration": 720.0,
+    "maxAngularAcceleration": 1080.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 57.26477372789239
+    "rotation": 56.445063778921124
   },
   "reversed": false,
   "folder": "Right Paths",

@@ -1,0 +1,110 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "sequential",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Angled Right-F"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "L4"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "AlignLeft"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "F-Coral"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Coral-D"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "L4"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "AlignRight"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "D-Coral"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Coral-D"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "L4"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "AlignLeft"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "D-Coral"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Coral-B"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "L4"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "AlignRight"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}
