@@ -24,6 +24,9 @@ import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -51,6 +54,8 @@ public class RobotContainer {
                         intakeSubsystem);
         private final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
         private final Light lights = new Light();
+
+        ShuffleboardTab driverTab = Shuffleboard.getTab("Driver");
 
         private final SendableChooser<Command> autoChooser;
         // Replace with CommandPS4Controller or CommandJoystick if needed
@@ -89,7 +94,22 @@ public class RobotContainer {
                 autoChooser = AutoBuilder.buildAutoChooser();
                 configureBindings();
                 DriverStation.silenceJoystickConnectionWarning(true);
-                SmartDashboard.putData("Auto Chooser", autoChooser);
+                driverTab.add("Auto Chooser", autoChooser)
+                                .withSize(2, 1)
+                                .withPosition(3, 0)
+                                .withWidget(BuiltInWidgets.kComboBoxChooser);
+                // SmartDashboard.putData("Auto Chooser", autoChooser);
+
+                driverTab.add("Main", "http://limelight.local:5800/stream.mjpg")
+                                .withSize(3, 4)
+                                .withPosition(0, 0).withWidget(BuiltInWidgets.kCameraStream);
+
+                driverTab.add("Back", "http://limelight-main.local:5800/stream.mjpg")
+                                .withSize(3, 4)
+                                .withPosition(5, 0).withWidget(BuiltInWidgets.kCameraStream);
+                driverTab.add("Field", SmartDashboard.getData("Field"))
+                .withSize(8, 5)
+                .withPosition(0, 4).withWidget(BuiltInWidgets.kField);
         }
 
         private void configureDefaultCommand() {
