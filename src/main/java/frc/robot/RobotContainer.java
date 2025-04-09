@@ -234,4 +234,8 @@ public class RobotContainer {
                         return cmd;
                 }, Set.of(manipulatorSubsystem));
         }
+
+        public void setElevatorIdleMode(boolean brakemode) {
+                elevatorSubsystem.setBrakeMode(brakemode);
+        }
 }

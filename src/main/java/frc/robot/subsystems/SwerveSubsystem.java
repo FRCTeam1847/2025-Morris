@@ -244,20 +244,37 @@ public class SwerveSubsystem extends SubsystemBase {
     // visionPose.timestampSeconds);
     // }
 
-    LimelightHelpers.PoseEstimate visionPose1 = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight");
-    LimelightHelpers.PoseEstimate visionPose2 = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-main");
-
-    Pose2d currentPose = getPose();
+    Rotation2d heading = getHeading(); // Your current robot heading
+    LimelightHelpers.SetRobotOrientation("limelight", heading.getDegrees(), 0, 0, 0, 0, 0);
+    LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
+    // Pose2d currentPose = getPose();
 
     // Helper method to validate and add each vision estimate
     if (!useQuestNav) {
-      addValidVisionMeasurement(visionPose1, currentPose, "limelight");
-      addValidVisionMeasurement(visionPose2, currentPose, "limelight-main");
+      processMegaTagVisionUpdate(mt2);
     }
     Logger.recordOutput("Field/Robot", new Pose3d(getPose()));
     Logger.recordOutput("QuestNav/Pose", questNav.getPose());
     Logger.recordOutput("QuestNav/Quaternion", questNav.getQuaternion());
 
+  }
+
+  private void processMegaTagVisionUpdate(LimelightHelpers.PoseEstimate visionPose) {
+    boolean doRejectUpdate = false;
+
+    double omegaDegPerSec = Math.toDegrees(swerveDrive.getRobotVelocity().omegaRadiansPerSecond);
+
+    if (Math.abs(omegaDegPerSec) > 360) {
+      doRejectUpdate = true;
+    }
+
+    if (visionPose.tagCount == 0) {
+      doRejectUpdate = true;
+    }
+
+    if (!doRejectUpdate) {
+      swerveDrive.addVisionMeasurement(visionPose.pose, visionPose.timestampSeconds);
+    }
   }
 
   private void addValidVisionMeasurement(LimelightHelpers.PoseEstimate visionPose, Pose2d currentPose, String camName) {
