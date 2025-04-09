@@ -13,6 +13,7 @@ import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 public class ElevatorSubsystem extends SubsystemBase {
@@ -95,5 +96,12 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   public void resetEncoder() {
     leftEncoder.setPosition(0);
+  }
+
+  public void setBrakeMode(boolean brake) {
+    SparkMaxConfig config = new SparkMaxConfig();
+    config.idleMode(brake ? IdleMode.kBrake : IdleMode.kCoast);
+    leftMotor.configure(config, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+    rightMotor.configure(config, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
   }
 }

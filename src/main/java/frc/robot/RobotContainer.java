@@ -108,8 +108,8 @@ public class RobotContainer {
                                 .withSize(3, 4)
                                 .withPosition(5, 0).withWidget(BuiltInWidgets.kCameraStream);
                 driverTab.add("Field", SmartDashboard.getData("Field"))
-                .withSize(8, 5)
-                .withPosition(0, 4).withWidget(BuiltInWidgets.kField);
+                                .withSize(8, 5)
+                                .withPosition(0, 4).withWidget(BuiltInWidgets.kField);
         }
 
         private void configureDefaultCommand() {
@@ -231,5 +231,9 @@ public class RobotContainer {
                         activeScoreCommand = cmd;
                         return cmd;
                 }, Set.of(manipulatorSubsystem));
+        }
+
+        public void setElevatorIdleMode(boolean brakemode) {
+                elevatorSubsystem.setBrakeMode(brakemode);
         }
 }
