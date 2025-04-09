@@ -108,8 +108,8 @@ public class RobotContainer {
                                 .withSize(3, 4)
                                 .withPosition(5, 0).withWidget(BuiltInWidgets.kCameraStream);
                 driverTab.add("Field", SmartDashboard.getData("Field"))
-                .withSize(8, 5)
-                .withPosition(0, 4).withWidget(BuiltInWidgets.kField);
+                                .withSize(8, 5)
+                                .withPosition(0, 4).withWidget(BuiltInWidgets.kField);
         }
 
         private void configureDefaultCommand() {
@@ -128,9 +128,11 @@ public class RobotContainer {
                 // NamedCommands.registerCommand("resetElevator", new InstantCommand(() ->
                 // manipulatorSubsystem.rest ));
                 NamedCommands.registerCommand("L2Only",
-                                new InstantCommand(() -> manipulatorSubsystem.setLevel(Levels.L2)));
+                                new InstantCommand(() -> manipulatorSubsystem.SetJustLevel(Levels.L2)));
                 NamedCommands.registerCommand("L3Only",
-                                new InstantCommand(() -> manipulatorSubsystem.setLevel(Levels.L3)));
+                                manipulatorSubsystem.SetJustLevel(Levels.L3));
+                NamedCommands.registerCommand("L4Only",
+                                new InstantCommand(() -> manipulatorSubsystem.SetJustLevel(Levels.L4)));
 
                 NamedCommands.registerCommand(
                                 "Intake", manipulatorSubsystem.intakeCommand());

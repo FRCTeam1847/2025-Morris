@@ -79,24 +79,6 @@
                 "data": {
                   "pathName": "L Coral"
                 }
-              },
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Coral A"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "L4"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "AlignLeft"
-                }
               }
             ]
           }

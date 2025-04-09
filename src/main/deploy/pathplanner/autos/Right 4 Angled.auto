@@ -17,13 +17,13 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "L4"
+                  "name": "AlignLeft"
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "AlignLeft"
+                  "name": "L4"
                 }
               },
               {
@@ -41,13 +41,13 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "L4"
+                  "name": "AlignRight"
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "AlignRight"
+                  "name": "L4"
                 }
               },
               {
@@ -65,37 +65,19 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "L4"
+                  "name": "AlignLeft"
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "AlignLeft"
+                  "name": "L4"
                 }
               },
               {
                 "type": "path",
                 "data": {
                   "pathName": "D-Coral"
-                }
-              },
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Coral-B"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "L4"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "AlignRight"
                 }
               }
             ]

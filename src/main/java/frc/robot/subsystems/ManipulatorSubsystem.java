@@ -109,6 +109,17 @@ public class ManipulatorSubsystem extends SubsystemBase {
     }
   }
 
+  public Command SetJustLevel(Levels level) {
+    return new ConditionalCommand(
+        new InstantCommand(() -> {
+          setLevel(level);
+        }),
+        new InstantCommand(() -> System.out.println("Skipped scoring: No coral + in AUTO")),
+        () ->  hasInnerCoral() // Only run if not auto or coral is present
+    );
+
+  }
+
   public Command ScoreAtLevelParallelCommand(Levels level) {
     System.out.println("ScoreAtLevelParallelCommand Started");
 
