@@ -173,7 +173,7 @@ public class SwerveSubsystem extends SubsystemBase {
   public SwerveSubsystem(File directory) {
     // Configure the Telemetry before creating the SwerveDrive to avoid unnecessary
     // objects being created.
-    SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
+    SwerveDriveTelemetry.verbosity = TelemetryVerbosity.POSE;
     try {
       swerveDrive = new SwerveParser(directory).createSwerveDrive(Constants.MAX_SPEED,
           new Pose2d(new Translation2d(Meter.of(1),
@@ -207,6 +207,8 @@ public class SwerveSubsystem extends SubsystemBase {
       swerveDrive.stopOdometryThread();
     }
     // setupPathPlanner();
+    int[] ids = { 1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 16, 17, 18, 19, 20, 21, 22 };
+    LimelightHelpers.SetFiducialIDFiltersOverride("limlight-main", ids);
   }
 
   /**
@@ -233,7 +235,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    logReefAlignmentDiagnostics();
+     logReefAlignmentDiagnostics();
     /** old way **/
 
     // LimelightHelpers.PoseEstimate visionPose;
@@ -244,18 +246,18 @@ public class SwerveSubsystem extends SubsystemBase {
     // visionPose.timestampSeconds);
     // }
 
-    Rotation2d heading = getHeading(); // Your current robot heading
-    LimelightHelpers.SetRobotOrientation("limelight", heading.getDegrees(), 0, 0, 0, 0, 0);
-    LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
+    // Rotation2d heading = swerveDrive.getGyroRotation3d().toRotation2d();//.getYaw();
+    Rotation2d heading = swerveDrive.getOdometryHeading();
+   // getHeading(); // Your current robot heading
+    LimelightHelpers.SetRobotOrientation("limelight-main", heading.getDegrees(), 0, 0, 0, 0, 0);
+    LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-main");
     // Pose2d currentPose = getPose();
 
     // Helper method to validate and add each vision estimate
-    if (!useQuestNav) {
-      processMegaTagVisionUpdate(mt2);
-    }
+   processMegaTagVisionUpdate(mt2);
+
     Logger.recordOutput("Field/Robot", new Pose3d(getPose()));
-    Logger.recordOutput("QuestNav/Pose", questNav.getPose());
-    Logger.recordOutput("QuestNav/Quaternion", questNav.getQuaternion());
+ 
 
   }
 
@@ -568,7 +570,7 @@ public class SwerveSubsystem extends SubsystemBase {
       // Make the robot move
       swerveDrive.drive(SwerveMath.scaleTranslation(new Translation2d(
           translationX.getAsDouble() * swerveDrive.getMaximumChassisVelocity(),
-          translationY.getAsDouble() * swerveDrive.getMaximumChassisVelocity()), 1),
+          translationY.getAsDouble() * swerveDrive.getMaximumChassisVelocity()), 0.8),
           Math.pow(angularRotationX.getAsDouble(), 3) *
               swerveDrive.getMaximumChassisAngularVelocity(),
           true,
@@ -595,7 +597,7 @@ public class SwerveSubsystem extends SubsystemBase {
     return run(() -> {
 
       Translation2d scaledInputs = SwerveMath.scaleTranslation(new Translation2d(translationX.getAsDouble(),
-          translationY.getAsDouble()), 1);
+          translationY.getAsDouble()), 0.8);
 
       // Make the robot move
       driveFieldOriented(swerveDrive.swerveController.getTargetSpeeds(scaledInputs.getX(), scaledInputs.getY(),
@@ -684,9 +686,9 @@ public class SwerveSubsystem extends SubsystemBase {
    * @param initialHolonomicPose The pose to set the odometry to
    */
   public void resetOdometry(Pose2d initialHolonomicPose) {
-    if (useQuestNav) {
-      questNav.zeroPosition(); // Reset QuestNav state
-    }
+    // if (useQuestNav) {
+    //   questNav.zeroPosition(); // Reset QuestNav state
+    // }
     swerveDrive.resetOdometry(initialHolonomicPose);
   }
 
@@ -697,7 +699,7 @@ public class SwerveSubsystem extends SubsystemBase {
    * @return The robot's pose
    */
   public Pose2d getPose() {
-    return useQuestNav ? getCorrectedQuestNavPose() : swerveDrive.getPose();
+    return swerveDrive.getPose();
   }
 
   public Pose2d getCorrectedQuestNavPose() {
@@ -785,7 +787,7 @@ public class SwerveSubsystem extends SubsystemBase {
    * @return The yaw angle
    */
   public Rotation2d getHeading() {
-    return useQuestNav ? questNav.getPose().getRotation() : swerveDrive.getPose().getRotation();
+    return swerveDrive.getPose().getRotation();
   }
 
   /**

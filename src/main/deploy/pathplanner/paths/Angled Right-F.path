@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 6.980559922386911,
-        "y": 2.8114361702127644
+        "x": 6.939095744680851,
+        "y": 2.686968085106382
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.875059998900465,
-        "y": 2.8122151092307344
+        "x": 5.620295179509254,
+        "y": 2.7061046159697013
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 5.178333660794044,
-        "y": 2.8114361702127644
+        "x": 5.258776595744681,
+        "y": 2.686968085106382
       },
       "prevControl": {
-        "x": 5.439202076408072,
-        "y": 2.813731549005693
+        "x": 5.693662040913551,
+        "y": 2.6994439656088813
       },
       "nextControl": null,
       "isLocked": false,
@@ -31,21 +31,9 @@
   "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [
-    {
-      "name": "At Reef",
-      "waypointRelativePos": 0.09629044988160892,
-      "endWaypointRelativePos": null,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "L3Only"
-        }
-      }
-    }
-  ],
+  "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 4.0,
+    "maxVelocity": 2.0,
     "maxAcceleration": 6.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 1080.0,
@@ -54,7 +42,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 121.62288679342609
+    "rotation": 129.28940686250033
   },
   "reversed": false,
   "folder": "Right Paths",

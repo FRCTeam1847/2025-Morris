@@ -102,7 +102,7 @@ public class Robot extends LoggedRobot {
    */
   @Override
   public void disabledInit() {
-    m_robotContainer.setMotorBrake(false);
+    // m_robotContainer.setMotorBrake(false);
     disabledTimer.reset();
     disabledTimer.start();
   }
@@ -110,7 +110,7 @@ public class Robot extends LoggedRobot {
   @Override
   public void disabledPeriodic() {
     if (disabledTimer.hasElapsed(Constants.DrivebaseConstants.WHEEL_LOCK_TIME)) {
-      m_robotContainer.setMotorBrake(false);
+      // m_robotContainer.setMotorBrake(false);
       disabledTimer.stop();
     }
   }

@@ -8,20 +8,20 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.249076084818271,
-        "y": 6.5650837229137124
+        "x": 2.4569408388706497,
+        "y": 6.524114365882202
       },
       "isLocked": false,
       "linkedName": "CoralLeft"
     },
     {
       "anchor": {
-        "x": 3.6826236101434313,
-        "y": 5.166247300876625
+        "x": 3.7962765957446805,
+        "y": 5.238563829787234
       },
       "prevControl": {
-        "x": 3.124173839542319,
-        "y": 5.87715123523835
+        "x": 3.387831688820551,
+        "y": 5.689603320567115
       },
       "nextControl": null,
       "isLocked": false,
@@ -31,21 +31,9 @@
   "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [
-    {
-      "name": "At Reef",
-      "waypointRelativePos": 0.20363062352012448,
-      "endWaypointRelativePos": null,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "L3Only"
-        }
-      }
-    }
-  ],
+  "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 4.0,
+    "maxVelocity": 2.0,
     "maxAcceleration": 6.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 1080.0,

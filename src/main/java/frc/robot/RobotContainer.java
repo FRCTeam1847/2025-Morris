@@ -21,6 +21,8 @@ import java.util.Set;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -72,7 +74,7 @@ public class RobotContainer {
                         () -> controller.getLeftX() * -1)
                         .withControllerRotationAxis(controller::getRightX)
                         .deadband(OperatorConstants.DEADBAND)
-                        .scaleTranslation(1)
+                        .scaleTranslation(0.8)
                         .allianceRelativeControl(true);
 
         SwerveInputStream driveAngularVelocitySim = SwerveInputStream.of(drivebase.getSwerveDrive(),
@@ -80,7 +82,7 @@ public class RobotContainer {
                         () -> -controller.getLeftX())
                         .withControllerRotationAxis(() -> controller.getRightX())
                         .deadband(OperatorConstants.DEADBAND)
-                        .scaleTranslation(1)
+                        .scaleTranslation(0.8)
                         .allianceRelativeControl(true);
 
         /**
@@ -107,9 +109,9 @@ public class RobotContainer {
                 driverTab.add("Back", "http://limelight-main.local:5800/stream.mjpg")
                                 .withSize(3, 4)
                                 .withPosition(5, 0).withWidget(BuiltInWidgets.kCameraStream);
-                driverTab.add("Field", SmartDashboard.getData("Field"))
-                                .withSize(8, 5)
-                                .withPosition(0, 4).withWidget(BuiltInWidgets.kField);
+                // driverTab.add("Field", SmartDashboard.getData("Field"))
+                //                 .withSize(8, 5)
+                //                 .withPosition(0, 4).withWidget(BuiltInWidgets.kField);
         }
 
         private void configureDefaultCommand() {
@@ -133,6 +135,8 @@ public class RobotContainer {
                                 manipulatorSubsystem.SetJustLevel(Levels.L3));
                 NamedCommands.registerCommand("L4Only",
                                 new InstantCommand(() -> manipulatorSubsystem.SetJustLevel(Levels.L4)));
+                 NamedCommands.registerCommand("HasCoral",
+                                new InstantCommand(() -> manipulatorSubsystem.hasInnerCoral()));
 
                 NamedCommands.registerCommand(
                                 "Intake", manipulatorSubsystem.intakeCommand());
@@ -149,6 +153,8 @@ public class RobotContainer {
                                 new AlignToReefTagRelative(true, drivebase).withTimeout(Constants.ALIGN_TIMEOUT));
                 NamedCommands.registerCommand("AlignLeft",
                                 new AlignToReefTagRelative(false, drivebase).withTimeout(Constants.ALIGN_TIMEOUT));
+                NamedCommands.registerCommand("ResetPose", new InstantCommand(
+                                () -> drivebase.resetOdometry(new Pose2d(15.9, 0.735, Rotation2d.fromDegrees(35)))));
         }
 
         private void configureBindings() {
@@ -187,6 +193,7 @@ public class RobotContainer {
 
                 controller.povRight().whileTrue(NamedCommands.getCommand("AlignRight"));
                 controller.povLeft().whileTrue(NamedCommands.getCommand("AlignLeft"));
+                controller.R1().onTrue(NamedCommands.getCommand("ResetPose").ignoringDisable(true));
         }
 
         /**

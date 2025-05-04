@@ -91,7 +91,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   public void periodic() {
     SmartDashboard.putNumber("Current Height: ", getElevatorHeight());
     SmartDashboard.putBoolean("At Height: ", isAtHeight());
-    SmartDashboard.putNumber("encoder rotations: ", leftEncoder.getPosition());
+   // SmartDashboard.putNumber("encoder rotations: ", leftEncoder.getPosition());
   }
 
   public void resetEncoder() {

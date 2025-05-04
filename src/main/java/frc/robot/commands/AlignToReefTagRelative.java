@@ -72,7 +72,7 @@ public class AlignToReefTagRelative extends Command {
       drivebase.drive(new Translation2d(), 0, false);
     }
 
-    SmartDashboard.putNumber("poseValidTimer", stopTimer.get());
+    // SmartDashboard.putNumber("poseValidTimer", stopTimer.get());
   }
 
   @Override

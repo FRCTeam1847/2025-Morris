@@ -17,13 +17,13 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "L4"
+                  "name": "AlignRight"
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "AlignRight"
+                  "name": "L4"
                 }
               },
               {
@@ -33,15 +33,15 @@
                 }
               },
               {
-                "type": "path",
+                "type": "named",
                 "data": {
-                  "pathName": "Coral L"
+                  "name": "Intake"
                 }
               },
               {
-                "type": "named",
+                "type": "path",
                 "data": {
-                  "name": "L4"
+                  "pathName": "Coral L"
                 }
               },
               {
@@ -51,9 +51,21 @@
                 }
               },
               {
+                "type": "named",
+                "data": {
+                  "name": "L4"
+                }
+              },
+              {
                 "type": "path",
                 "data": {
                   "pathName": "L Coral"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Intake"
                 }
               },
               {
@@ -65,13 +77,13 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "L4"
+                  "name": "AlignRight"
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "AlignRight"
+                  "name": "L4"
                 }
               },
               {

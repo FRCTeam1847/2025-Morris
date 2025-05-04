@@ -4,7 +4,6 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -15,21 +14,17 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Constants;
 import frc.robot.Constants.Levels;
-import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
-import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
-import org.littletonrobotics.junction.mechanism.LoggedMechanismRoot2d;
 
 public class ManipulatorSubsystem extends SubsystemBase {
   private final ElevatorSubsystem elevatorSubsystem;
   private final IntakeSubsystem intakeSubsystem;
 
-  private final LoggedMechanism2d combinedMechanism2d;
-  private final LoggedMechanismRoot2d baseRoot;
-  private final LoggedMechanismLigament2d elevatorLigament;
+  // private final LoggedMechanism2d combinedMechanism2d;
+  // private final LoggedMechanismRoot2d baseRoot;
+  // private final LoggedMechanismLigament2d elevatorLigament;
 
-  private static final int BASE_X = 50;
-  private static final int BASE_Y = 10;
+  // private static final int BASE_X = 50;
+  // private static final int BASE_Y = 10;
 
   private Levels currentLevel = Levels.Home;
 
@@ -37,15 +32,15 @@ public class ManipulatorSubsystem extends SubsystemBase {
     this.elevatorSubsystem = elevatorSubsystem;
     this.intakeSubsystem = intakeSubsystem;
 
-    combinedMechanism2d = new LoggedMechanism2d(100, 100);
+    //combinedMechanism2d = new LoggedMechanism2d(100, 100);
 
     // Create the base root for the mechanism visualization
-    baseRoot = combinedMechanism2d.getRoot("Base", BASE_X, BASE_Y);
+    //baseRoot = combinedMechanism2d.getRoot("Base", BASE_X, BASE_Y);
 
     // Add an elevator ligament (vertical element) to the visualization
-    elevatorLigament = baseRoot.append(new LoggedMechanismLigament2d("Elevator", 0, 0));
+    //elevatorLigament = baseRoot.append(new LoggedMechanismLigament2d("Elevator", 0, 0));
 
-    SmartDashboard.putData("Combined Mechanism", combinedMechanism2d);
+    //SmartDashboard.putData("Combined Mechanism", combinedMechanism2d);
   }
 
   /**
@@ -55,11 +50,11 @@ public class ManipulatorSubsystem extends SubsystemBase {
    */
   public void updateMechanism(double elevatorHeight) {
     // Update the elevator ligament length in the visualization.
-    elevatorLigament.setLength(elevatorHeight);
+    // elevatorLigament.setLength(elevatorHeight);
 
     // Log the manipulator pose and visualization
-    Logger.recordOutput("Field/Robot/ManipulatorMechanism", getManipulatorPose3d());
-    Logger.recordOutput("Mechanism2d/ManipulatorMechanism", combinedMechanism2d);
+    // Logger.recordOutput("Field/Robot/ManipulatorMechanism", getManipulatorPose3d());
+    // Logger.recordOutput("Mechanism2d/ManipulatorMechanism", combinedMechanism2d);
   }
 
   /**

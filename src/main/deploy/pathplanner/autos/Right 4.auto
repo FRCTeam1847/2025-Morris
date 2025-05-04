@@ -85,18 +85,6 @@
                 "data": {
                   "pathName": "Coral-B"
                 }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "AlignRight"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "L4"
-                }
               }
             ]
           }

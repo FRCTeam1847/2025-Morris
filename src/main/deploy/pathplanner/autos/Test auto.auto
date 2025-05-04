@@ -27,12 +27,6 @@
                 }
               },
               {
-                "type": "wait",
-                "data": {
-                  "waitTime": 2.0
-                }
-              },
-              {
                 "type": "path",
                 "data": {
                   "pathName": "F-Coral"
@@ -53,19 +47,13 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "AlignRight"
+                  "name": "AlignLeft"
                 }
               },
               {
                 "type": "named",
                 "data": {
                   "name": "L4"
-                }
-              },
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 2.0
                 }
               },
               {
