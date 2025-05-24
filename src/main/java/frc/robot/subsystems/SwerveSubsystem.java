@@ -254,7 +254,9 @@ public class SwerveSubsystem extends SubsystemBase {
     // Pose2d currentPose = getPose();
 
     // Helper method to validate and add each vision estimate
-   processMegaTagVisionUpdate(mt2);
+    if(mt2 != null){
+      processMegaTagVisionUpdate(mt2);
+    }
 
     Logger.recordOutput("Field/Robot", new Pose3d(getPose()));
  

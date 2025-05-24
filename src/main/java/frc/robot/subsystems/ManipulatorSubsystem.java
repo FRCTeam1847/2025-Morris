@@ -1,5 +1,5 @@
 package frc.robot.subsystems;
-
+import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -23,8 +23,8 @@ public class ManipulatorSubsystem extends SubsystemBase {
   // private final LoggedMechanismRoot2d baseRoot;
   // private final LoggedMechanismLigament2d elevatorLigament;
 
-  // private static final int BASE_X = 50;
-  // private static final int BASE_Y = 10;
+  private static final int BASE_X = 50;
+  private static final int BASE_Y = 10;
 
   private Levels currentLevel = Levels.Home;
 
@@ -34,8 +34,8 @@ public class ManipulatorSubsystem extends SubsystemBase {
 
     //combinedMechanism2d = new LoggedMechanism2d(100, 100);
 
-    // Create the base root for the mechanism visualization
-    //baseRoot = combinedMechanism2d.getRoot("Base", BASE_X, BASE_Y);
+    //Create the base root for the mechanism visualization
+    // baseRoot = combinedMechanism2d.getRoot("Base", BASE_X, BASE_Y);
 
     // Add an elevator ligament (vertical element) to the visualization
     //elevatorLigament = baseRoot.append(new LoggedMechanismLigament2d("Elevator", 0, 0));
@@ -53,7 +53,7 @@ public class ManipulatorSubsystem extends SubsystemBase {
     // elevatorLigament.setLength(elevatorHeight);
 
     // Log the manipulator pose and visualization
-    // Logger.recordOutput("Field/Robot/ManipulatorMechanism", getManipulatorPose3d());
+    Logger.recordOutput("Field/Robot/ManipulatorMechanism", getManipulatorPose3d());
     // Logger.recordOutput("Mechanism2d/ManipulatorMechanism", combinedMechanism2d);
   }
 

@@ -89,7 +89,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
   public boolean isOuterSensorTriggered() {
     if (RobotBase.isSimulation()) {
-      boolean triggered = simulationTimer.hasElapsed(0.025);
+      boolean triggered = simulationTimer.hasElapsed(1);
       // System.out.println("Simulation mode: time = " + simulationTimer.get() +
       // ",triggered = " + triggered);
       return triggered;
