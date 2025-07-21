@@ -5,9 +5,15 @@
     "data": {
       "commands": [
         {
+          "type": "named",
+          "data": {
+            "name": "Home"
+          }
+        },
+        {
           "type": "path",
           "data": {
-            "pathName": "Right-Back"
+            "pathName": "Left-Reef"
           }
         },
         {
@@ -25,19 +31,25 @@
         {
           "type": "path",
           "data": {
-            "pathName": "B-CoralRightBack"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "CoralRightBack-B"
+            "pathName": "Reef-Coral"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "AlignLeft"
+            "name": "Intake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Coral-Reef2"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AlignRight"
           }
         },
         {

@@ -23,8 +23,8 @@ public class ManipulatorSubsystem extends SubsystemBase {
   // private final LoggedMechanismRoot2d baseRoot;
   // private final LoggedMechanismLigament2d elevatorLigament;
 
-  private static final int BASE_X = 50;
-  private static final int BASE_Y = 10;
+  // private static final int BASE_X = 50;
+  // private static final int BASE_Y = 10;
 
   private Levels currentLevel = Levels.Home;
 
@@ -165,7 +165,7 @@ public class ManipulatorSubsystem extends SubsystemBase {
       intakeSubsystem.stopIntake();
     });
 
-    // ✅ Only skip if we're in auto AND there's no coral
+    // Only skip if we're in auto AND there's no coral
     return new ConditionalCommand(
         scoreSequence,
         new InstantCommand(() -> System.out.println("Skipped scoring: No coral + in AUTO")),

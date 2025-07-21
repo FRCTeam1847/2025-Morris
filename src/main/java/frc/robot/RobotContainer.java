@@ -7,12 +7,12 @@ package frc.robot;
 import frc.robot.Constants.Levels;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.AlignToReefTagRelative;
-import frc.robot.subsystems.ClimberSubsystem;
+// import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
-import frc.robot.subsystems.Light;
+// import frc.robot.subsystems.Light;
 import frc.robot.subsystems.ManipulatorSubsystem;
-import frc.robot.subsystems.SwerveSubsystem;
+// import frc.robot.subsystems.SwerveSubsystem;
 import swervelib.SwerveInputStream;
 
 import java.io.File;
@@ -30,7 +30,7 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+// import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -48,14 +48,14 @@ import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 public class RobotContainer {
         // File swerveJsonDirectory = new File(Filesystem.getDeployDirectory(),
         // "swerve");
-        private final SwerveSubsystem drivebase = new SwerveSubsystem(
-                        new File(Filesystem.getDeployDirectory(), "swerve/kraken"));
+        // private final SwerveSubsystem drivebase = new SwerveSubsystem(
+        //                 new File(Filesystem.getDeployDirectory(), "swerve/kraken"));
         private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
         private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
         private final ManipulatorSubsystem manipulatorSubsystem = new ManipulatorSubsystem(elevatorSubsystem,
                         intakeSubsystem);
-        private final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
-        private final Light lights = new Light();
+        // private final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
+        // private final Light lights = new Light();
 
         ShuffleboardTab driverTab = Shuffleboard.getTab("Driver");
 
@@ -69,21 +69,21 @@ public class RobotContainer {
          * Converts driver input into a field-relative ChassisSpeeds that is controlled
          * by angular velocity.
          */
-        SwerveInputStream driveAngularVelocity = SwerveInputStream.of(drivebase.getSwerveDrive(),
-                        () -> controller.getLeftY() * -1,
-                        () -> controller.getLeftX() * -1)
-                        .withControllerRotationAxis(controller::getRightX)
-                        .deadband(OperatorConstants.DEADBAND)
-                        .scaleTranslation(0.8)
-                        .allianceRelativeControl(true);
+        // SwerveInputStream driveAngularVelocity = SwerveInputStream.of(drivebase.getSwerveDrive(),
+        //                 () -> controller.getLeftY() * -1,
+        //                 () -> controller.getLeftX() * -1)
+        //                 .withControllerRotationAxis(controller::getRightX)
+        //                 .deadband(OperatorConstants.DEADBAND)
+        //                 .scaleTranslation(0.8)
+        //                 .allianceRelativeControl(true);
 
-        SwerveInputStream driveAngularVelocitySim = SwerveInputStream.of(drivebase.getSwerveDrive(),
-                        () -> -controller.getLeftY(),
-                        () -> -controller.getLeftX())
-                        .withControllerRotationAxis(() -> controller.getRightX())
-                        .deadband(OperatorConstants.DEADBAND)
-                        .scaleTranslation(0.8)
-                        .allianceRelativeControl(true);
+        // SwerveInputStream driveAngularVelocitySim = SwerveInputStream.of(drivebase.getSwerveDrive(),
+        //                 () -> -controller.getLeftY(),
+        //                 () -> -controller.getLeftX())
+        //                 .withControllerRotationAxis(() -> controller.getRightX())
+        //                 .deadband(OperatorConstants.DEADBAND)
+        //                 .scaleTranslation(0.8)
+        //                 .allianceRelativeControl(true);
 
         /**
          * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -92,7 +92,7 @@ public class RobotContainer {
                 configureDefaultCommand();
                 registerNamedCommands();
 
-                drivebase.setupPathPlanner();
+                // drivebase.setupPathPlanner();
                 autoChooser = AutoBuilder.buildAutoChooser();
                 configureBindings();
                 DriverStation.silenceJoystickConnectionWarning(true);
@@ -110,8 +110,8 @@ public class RobotContainer {
                                 .withSize(3, 4)
                                 .withPosition(5, 0).withWidget(BuiltInWidgets.kCameraStream);
                 // driverTab.add("Field", SmartDashboard.getData("Field"))
-                //                 .withSize(8, 5)
-                //                 .withPosition(0, 4).withWidget(BuiltInWidgets.kField);
+                // .withSize(8, 5)
+                // .withPosition(0, 4).withWidget(BuiltInWidgets.kField);
         }
 
         private void configureDefaultCommand() {
@@ -135,7 +135,7 @@ public class RobotContainer {
                                 manipulatorSubsystem.SetJustLevel(Levels.L3));
                 NamedCommands.registerCommand("L4Only",
                                 new InstantCommand(() -> manipulatorSubsystem.SetJustLevel(Levels.L4)));
-                 NamedCommands.registerCommand("HasCoral",
+                NamedCommands.registerCommand("HasCoral",
                                 new InstantCommand(() -> manipulatorSubsystem.hasInnerCoral()));
 
                 NamedCommands.registerCommand(
@@ -144,28 +144,28 @@ public class RobotContainer {
                                 "Release", manipulatorSubsystem.releaseCommand());
                 NamedCommands.registerCommand(
                                 "IntakeStop", manipulatorSubsystem.intakeStopCommand());
-                NamedCommands.registerCommand("ClimberUp", climberSubsystem.moveForwardCommand());
-                NamedCommands.registerCommand("ClimberDown", climberSubsystem.moveBackwardCommand());
-                NamedCommands.registerCommand("ClimberStop",
-                                climberSubsystem.stopCommand());
+                // NamedCommands.registerCommand("ClimberUp", climberSubsystem.moveForwardCommand());
+                // NamedCommands.registerCommand("ClimberDown", climberSubsystem.moveBackwardCommand());
+                // NamedCommands.registerCommand("ClimberStop",
+                //                 climberSubsystem.stopCommand());
                 NamedCommands.registerCommand("CancelCommand", new InstantCommand(() -> cancelActiveScoreCommand()));
-                NamedCommands.registerCommand("AlignRight",
-                                new AlignToReefTagRelative(true, drivebase).withTimeout(Constants.ALIGN_TIMEOUT));
-                NamedCommands.registerCommand("AlignLeft",
-                                new AlignToReefTagRelative(false, drivebase).withTimeout(Constants.ALIGN_TIMEOUT));
-                NamedCommands.registerCommand("ResetPose", new InstantCommand(
-                                () -> drivebase.resetOdometry(new Pose2d(15.9, 0.735, Rotation2d.fromDegrees(35)))));
+                // NamedCommands.registerCommand("AlignRight",
+                //                 new AlignToReefTagRelative(true, drivebase).withTimeout(Constants.ALIGN_TIMEOUT));
+                // NamedCommands.registerCommand("AlignLeft",
+                //                 new AlignToReefTagRelative(false, drivebase).withTimeout(Constants.ALIGN_TIMEOUT));
+                // NamedCommands.registerCommand("ResetPose", new InstantCommand(
+                //                 () -> drivebase.resetOdometry(new Pose2d(15.9, 0.735, Rotation2d.fromDegrees(35)))));
         }
 
         private void configureBindings() {
-                Command driveFieldOrientedAnglularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
-                Command driveFieldOrientedAnglularVelocitySim = drivebase.driveFieldOriented(driveAngularVelocitySim);
+                // Command driveFieldOrientedAnglularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
+                // Command driveFieldOrientedAnglularVelocitySim = drivebase.driveFieldOriented(driveAngularVelocitySim);
 
-                if (RobotBase.isSimulation()) {
-                        drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocitySim);
-                } else {
-                        drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
-                }
+                // if (RobotBase.isSimulation()) {
+                //         drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocitySim);
+                // } else {
+                //         drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
+                // }
 
                 controller.R2().whileTrue(NamedCommands.getCommand("Intake"))
                                 .onFalse(NamedCommands.getCommand("IntakeStop"));
@@ -206,7 +206,7 @@ public class RobotContainer {
         }
 
         public void setMotorBrake(boolean brake) {
-                drivebase.setMotorBrake(brake);
+              //  drivebase.setMotorBrake(brake);
         }
 
         private void cancelActiveScoreCommand() {

@@ -22,14 +22,14 @@ import swervelib.math.Matter;
  */
 public final class Constants {
 
-  private static final double robotWeight = 138; //
+  private static final double robotWeight = 126; //
   public static final double ROBOT_MASS = robotWeight * 0.453592; // 32lbs * kg per pound
   public static final Matter CHASSIS = new Matter(new Translation3d(0, 0, Units.inchesToMeters(8)), ROBOT_MASS);
   public static final double LOOP_TIME = 0.02; // s, 20ms + 110ms sprk max velocity lag // Old 0.13; 0.02 for saftey.
                                                // TEST 0.012
   public static final double MAX_SPEED = 3.8;
 
-  public static final double L1RELEASESPEED = -0.4;
+  public static final double L1RELEASESPEED = -0.6;
   public static final double RELEASESPEED = -0.5;
   public static final double INTAKESPEED = -0.13;
 
@@ -43,13 +43,13 @@ public final class Constants {
   public static final double ROT_TOLERANCE_REEF_ALIGNMENT = 1;
   public static final double X_SETPOINT_REEF_ALIGNMENT = -0.424; // Vertical pose
   public static final double X_TOLERANCE_REEF_ALIGNMENT = 0.01;
-  public static final double Y_SETPOINT_REEF_ALIGNMENT_LEFT = -0.45; // Horizontal pose
-  public static final double Y_SETPOINT_REEF_ALIGNMENT_RIGHT = -0.12;
+  public static final double Y_SETPOINT_REEF_ALIGNMENT_LEFT = -0.442; // Horizontal pose
+  public static final double Y_SETPOINT_REEF_ALIGNMENT_RIGHT = -0.117;
 
   public static final double Y_TOLERANCE_REEF_ALIGNMENT = 0.005;
 
   public static final double DONT_SEE_TAG_WAIT_TIME = 1;
-  public static final double ALIGN_TIMEOUT = 1.5;
+  public static final double ALIGN_TIMEOUT = 1.4;
   public static final double POSE_VALIDATION_TIME = 0.3;
 
   // Maximum speed of the robot in meters per second, used to limit acceleration.
@@ -87,15 +87,15 @@ public final class Constants {
     public static final int LightsPWMPORT = 9;
     public static final int LIGHTSBUFFERSIZE = 12;
 
-    public static final double ELEVATOR_MIN_HEIGHT = 0.5;
-    public static final double ELEVATOR_MAX_HEIGHT = 27;
+    public static final double ELEVATOR_MIN_HEIGHT = 0.25;
+    public static final double ELEVATOR_MAX_HEIGHT = 27.25;
 
   }
 
   public static final double L1_HEIGHT = 3.75;
-  public static final double L2_HEIGHT = 6.25;
-  public static final double L3_HEIGHT = 13.75;
-  public static final double L4_HEIGHT = 27;
+  public static final double L2_HEIGHT = 6.3;
+  public static final double L3_HEIGHT = 14.25;
+  public static final double L4_HEIGHT = 27.25;
 
   public static enum Levels {
     Home,

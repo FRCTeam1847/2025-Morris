@@ -158,7 +158,7 @@ public class SwerveSubsystem extends SubsystemBase {
   private final GenericEntry closerSideEntry = reefTab.add("Closest Side", "N/A")
       .withPosition(0, 3).withSize(2, 1).getEntry();
 
-  private final boolean useQuestNav = false; // Toggle this to enable/disable QuestNav
+  // private final boolean useQuestNav = false; // Toggle this to enable/disable QuestNav
   private final QuestNav questNav = new QuestNav();
 
   Translation2d questNavOffset = new Translation2d(-0.35, 0.3); // back left corner (example)
