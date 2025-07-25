@@ -2,24 +2,6 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-// package frc.robot.subsystems;
-
-// import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
-// public class SwerveSubsystem extends SubsystemBase {
-//   /** Creates a new SwerveSubsystem. */
-//   public SwerveSubsystem() {}
-
-//   @Override
-//   public void periodic() {
-//     // This method will be called once per scheduler run
-//   }
-// }
-
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Meter;
@@ -57,9 +39,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
 import frc.robot.LimelightHelpers;
-import frc.robot.QuestNav;
-
-//import frc.robot.subsystems.swervedrive.Vision.Cameras;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -68,8 +47,6 @@ import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import org.json.simple.parser.ParseException;
 import org.littletonrobotics.junction.Logger;
-
-//import org.photonvision.targeting.PhotonPipelineResult;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
 import swervelib.SwerveDriveTest;
@@ -158,9 +135,6 @@ public class SwerveSubsystem extends SubsystemBase {
   private final GenericEntry closerSideEntry = reefTab.add("Closest Side", "N/A")
       .withPosition(0, 3).withSize(2, 1).getEntry();
 
-  private final boolean useQuestNav = false; // Toggle this to enable/disable QuestNav
-  private final QuestNav questNav = new QuestNav();
-
   Translation2d questNavOffset = new Translation2d(-0.35, 0.3); // back left corner (example)
   Rotation2d questNavRotationOffset = Rotation2d.fromDegrees(180); // it's facing backward
 
@@ -209,6 +183,7 @@ public class SwerveSubsystem extends SubsystemBase {
     // setupPathPlanner();
     int[] ids = { 1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 16, 17, 18, 19, 20, 21, 22 };
     LimelightHelpers.SetFiducialIDFiltersOverride("limlight-main", ids);
+    // LimelightHelpers.SetIMUMode("limlight-main", 1);
   }
 
   /**
@@ -235,7 +210,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-     logReefAlignmentDiagnostics();
+    logReefAlignmentDiagnostics();
     /** old way **/
 
     // LimelightHelpers.PoseEstimate visionPose;
@@ -246,18 +221,20 @@ public class SwerveSubsystem extends SubsystemBase {
     // visionPose.timestampSeconds);
     // }
 
-    // Rotation2d heading = swerveDrive.getGyroRotation3d().toRotation2d();//.getYaw();
+    // Rotation2d heading =
+    // swerveDrive.getGyroRotation3d().toRotation2d();//.getYaw();
     Rotation2d heading = swerveDrive.getOdometryHeading();
-   // getHeading(); // Your current robot heading
+    // getHeading(); // Your current robot heading
     LimelightHelpers.SetRobotOrientation("limelight-main", heading.getDegrees(), 0, 0, 0, 0, 0);
     LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-main");
     // Pose2d currentPose = getPose();
 
     // Helper method to validate and add each vision estimate
-   processMegaTagVisionUpdate(mt2);
+    if (mt2 != null) {
+      processMegaTagVisionUpdate(mt2);
+    }
 
     Logger.recordOutput("Field/Robot", new Pose3d(getPose()));
- 
 
   }
 
@@ -687,7 +664,7 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   public void resetOdometry(Pose2d initialHolonomicPose) {
     // if (useQuestNav) {
-    //   questNav.zeroPosition(); // Reset QuestNav state
+    // questNav.zeroPosition(); // Reset QuestNav state
     // }
     swerveDrive.resetOdometry(initialHolonomicPose);
   }
@@ -700,20 +677,6 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   public Pose2d getPose() {
     return swerveDrive.getPose();
-  }
-
-  public Pose2d getCorrectedQuestNavPose() {
-    Pose2d rawPose = questNav.getPose();
-
-    // Step 1: Rotate the pose to match robot's coordinate frame
-    Rotation2d correctedRotation = rawPose.getRotation().plus(questNavRotationOffset);
-
-    // Step 2: Translate QuestNav's position to the robot center (account for robot
-    // heading)
-    Translation2d rotatedOffset = questNavOffset.rotateBy(correctedRotation);
-    Translation2d correctedTranslation = rawPose.getTranslation().plus(rotatedOffset);
-
-    return new Pose2d(correctedTranslation, correctedRotation);
   }
 
   /**

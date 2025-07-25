@@ -44,7 +44,7 @@ public final class Constants {
   public static final double X_SETPOINT_REEF_ALIGNMENT = -0.424; // Vertical pose
   public static final double X_TOLERANCE_REEF_ALIGNMENT = 0.01;
   public static final double Y_SETPOINT_REEF_ALIGNMENT_LEFT = -0.45; // Horizontal pose
-  public static final double Y_SETPOINT_REEF_ALIGNMENT_RIGHT = -0.12;
+  public static final double Y_SETPOINT_REEF_ALIGNMENT_RIGHT = -0.09;
 
   public static final double Y_TOLERANCE_REEF_ALIGNMENT = 0.005;
 
