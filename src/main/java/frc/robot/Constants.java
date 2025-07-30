@@ -27,7 +27,7 @@ public final class Constants {
   public static final Matter CHASSIS = new Matter(new Translation3d(0, 0, Units.inchesToMeters(8)), ROBOT_MASS);
   public static final double LOOP_TIME = 0.02; // s, 20ms + 110ms sprk max velocity lag // Old 0.13; 0.02 for saftey.
                                                // TEST 0.012
-  public static final double MAX_SPEED = 3.8;
+  public static final double MAX_SPEED = 4.0;
 
   public static final double L1RELEASESPEED = -0.4;
   public static final double RELEASESPEED = -0.5;
@@ -88,7 +88,7 @@ public final class Constants {
     public static final int LIGHTSBUFFERSIZE = 12;
 
     public static final double ELEVATOR_MIN_HEIGHT = 0.5;
-    public static final double ELEVATOR_MAX_HEIGHT = 27;
+    public static final double ELEVATOR_MAX_HEIGHT = 27.4;
 
   }
 

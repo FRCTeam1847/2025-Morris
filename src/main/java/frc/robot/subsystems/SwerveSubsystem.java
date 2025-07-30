@@ -26,12 +26,11 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -78,65 +77,36 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   // private Vision vision;
 
-  private final ShuffleboardTab reefTab = Shuffleboard.getTab("Reef Alignment");
-  /** Pose data */
-  private final GenericEntry xPoseEntry = reefTab.add("X Pose", 0.0)
-      .withPosition(0, 0).withSize(2, 1).getEntry();
+  private final NetworkTable reefTable = NetworkTableInstance.getDefault().getTable("ReefAlignment");
 
-  private final GenericEntry xErrorEntry = reefTab.add("X Error", 0.0)
-      .withPosition(2, 0).withSize(2, 1).getEntry();
-  private final GenericEntry atXEntry = reefTab.add("At X Setpoint", false)
-      .withWidget(BuiltInWidgets.kBooleanBox)
-      .withPosition(5, 0).withSize(1, 1).getEntry();
-  private final GenericEntry xSetpointEntry = reefTab.add("X Setpoint", 0.0)
-      .withPosition(4, 0).withSize(1, 1).getEntry();
+  private final NetworkTableEntry xPoseEntry = reefTable.getEntry("X Pose");
+  private final NetworkTableEntry xErrorEntry = reefTable.getEntry("X Error");
+  private final NetworkTableEntry atXEntry = reefTable.getEntry("At X Setpoint");
+  private final NetworkTableEntry xSetpointEntry = reefTable.getEntry("X Setpoint");
 
-  private final GenericEntry yPoseEntry = reefTab.add("Y Pose", 0.0)
-      .withPosition(0, 1).withSize(2, 1).getEntry();
+  private final NetworkTableEntry yPoseEntry = reefTable.getEntry("Y Pose");
+  private final NetworkTableEntry yErrorLeftEntry = reefTable.getEntry("Y Error to LEFT");
+  private final NetworkTableEntry yErrorRightEntry = reefTable.getEntry("Y Error to RIGHT");
+  private final NetworkTableEntry yLeftSetpointEntry = reefTable.getEntry("Y Setpoint Left");
+  private final NetworkTableEntry yRightSetpointEntry = reefTable.getEntry("Y Setpoint Right");
 
-  private final GenericEntry yErrorLeftEntry = reefTab.add("Y Error to LEFT", 0.0)
-      .withPosition(2, 1).withSize(2, 1).getEntry();
+  private final NetworkTableEntry atLeftEntry = reefTable.getEntry("At Left Setpoint");
+  private final NetworkTableEntry atRightEntry = reefTable.getEntry("At Right Setpoint");
 
-  private final GenericEntry yErrorRightEntry = reefTab.add("Y Error to RIGHT", 0.0)
-      .withPosition(4, 1).withSize(2, 1).getEntry();
+  private final NetworkTableEntry rotPoseEntry = reefTable.getEntry("Rot Pose");
+  private final NetworkTableEntry rotAngleEntry = reefTable.getEntry("Rot (deg)");
+  private final NetworkTableEntry rotErrorEntry = reefTable.getEntry("Rot Error");
+  private final NetworkTableEntry rotSetpointEntry = reefTable.getEntry("Rot Setpoint");
+  private final NetworkTableEntry atRotEntry = reefTable.getEntry("At Rot Setpoint");
 
-  private final GenericEntry yLeftSetpointEntry = reefTab.add("Y Setpoint Left", 0.0)
-      .withPosition(6, 1).withSize(1, 1).getEntry();
+  private final NetworkTableEntry targetVisibleEntry = reefTable.getEntry("Target Visible");
+  private final NetworkTableEntry closerSideEntry = reefTable.getEntry("Closest Side");
 
-  private final GenericEntry yRightSetpointEntry = reefTab.add("Y Setpoint Right", 0.0)
-      .withPosition(7, 1).withSize(1, 1).getEntry();
-
-  private final GenericEntry atLeftEntry = reefTab.add("At Left Setpoint", false)
-      .withWidget(BuiltInWidgets.kBooleanBox)
-      .withPosition(6, 0).withSize(1, 1).getEntry();
-
-  private final GenericEntry atRightEntry = reefTab.add("At Right Setpoint", false)
-      .withWidget(BuiltInWidgets.kBooleanBox)
-      .withPosition(7, 0).withSize(1, 1).getEntry();
-
-  private final GenericEntry rotPoseEntry = reefTab.add("Rot Pose", 0.0)
-      .withPosition(0, 2).withSize(2, 1).getEntry();
-  private final GenericEntry rotAngleEntry = reefTab.add("Rot (deg)", 0.0)
-      .withPosition(6, 2).withSize(2, 1).getEntry();
-
-  private final GenericEntry rotErrorEntry = reefTab.add("Rot Error", 0.0)
-      .withPosition(2, 2).withSize(2, 1).getEntry();
-
-  private final GenericEntry rotSetpointEntry = reefTab.add("Rot Setpoint", 0.0)
-      .withPosition(4, 2).withSize(1, 1).getEntry();
-  private final GenericEntry atRotEntry = reefTab.add("At Rot Setpoint", false)
-      .withWidget(BuiltInWidgets.kBooleanBox)
-      .withPosition(5, 2).withSize(1, 1).getEntry();
-
-  private final GenericEntry targetVisibleEntry = reefTab.add("Target Visible", false)
-      .withWidget(BuiltInWidgets.kBooleanBox)
-      .withPosition(8, 0).withSize(1, 1).getEntry();
-
-  private final GenericEntry closerSideEntry = reefTab.add("Closest Side", "N/A")
-      .withPosition(0, 3).withSize(2, 1).getEntry();
-
-  Translation2d questNavOffset = new Translation2d(-0.35, 0.3); // back left corner (example)
-  Rotation2d questNavRotationOffset = Rotation2d.fromDegrees(180); // it's facing backward
+//   private final NetworkTableEntry visionXPoseEntry = reefTable.getEntry("Vision X Pose");
+// private final NetworkTableEntry visionYPoseEntry = reefTable.getEntry("Vision Y Pose");
+// private final NetworkTableEntry visionRotDegEntry = reefTable.getEntry("Vision Rot (deg)");
+  private final String LeftCameraName = "limelight-main";
+  private final String RightCameraName = "";
 
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
@@ -182,8 +152,11 @@ public class SwerveSubsystem extends SubsystemBase {
     }
     // setupPathPlanner();
     int[] ids = { 1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 16, 17, 18, 19, 20, 21, 22 };
-    LimelightHelpers.SetFiducialIDFiltersOverride("limlight-main", ids);
-    // LimelightHelpers.SetIMUMode("limlight-main", 1);
+    LimelightHelpers.SetFiducialIDFiltersOverride(LeftCameraName, ids);
+    LimelightHelpers.SetIMUMode(LeftCameraName, 1);
+
+    LimelightHelpers.SetFiducialIDFiltersOverride(RightCameraName, ids);
+    LimelightHelpers.SetIMUMode(RightCameraName, 1);
   }
 
   /**
@@ -211,27 +184,21 @@ public class SwerveSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     logReefAlignmentDiagnostics();
-    /** old way **/
-
-    // LimelightHelpers.PoseEstimate visionPose;
-    // visionPose = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight");
-    // if (LimelightHelpers.validPoseEstimate(visionPose)) {
-    // swerveDrive.addVisionMeasurement(
-    // visionPose.pose,
-    // visionPose.timestampSeconds);
-    // }
-
-    // Rotation2d heading =
-    // swerveDrive.getGyroRotation3d().toRotation2d();//.getYaw();
     Rotation2d heading = swerveDrive.getOdometryHeading();
-    // getHeading(); // Your current robot heading
-    LimelightHelpers.SetRobotOrientation("limelight-main", heading.getDegrees(), 0, 0, 0, 0, 0);
-    LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-main");
-    // Pose2d currentPose = getPose();
+    LimelightHelpers.SetRobotOrientation(LeftCameraName, heading.getDegrees(), 0, 0, 0, 0, 0);
+    LimelightHelpers.PoseEstimate mt2Left = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(LeftCameraName);
 
     // Helper method to validate and add each vision estimate
-    if (mt2 != null) {
-      processMegaTagVisionUpdate(mt2);
+    if (mt2Left != null) {
+      processMegaTagVisionUpdate(mt2Left);
+    }
+
+    LimelightHelpers.SetRobotOrientation(RightCameraName, heading.getDegrees(), 0, 0, 0, 0, 0);
+    LimelightHelpers.PoseEstimate mt2Right = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(RightCameraName);
+
+    // Helper method to validate and add each vision estimate
+    if (mt2Right != null) {
+      processMegaTagVisionUpdate(mt2Right);
     }
 
     Logger.recordOutput("Field/Robot", new Pose3d(getPose()));
@@ -346,30 +313,6 @@ public class SwerveSubsystem extends SubsystemBase {
     // IF USING CUSTOM PATHFINDER ADD BEFORE THIS LINE
     PathfindingCommand.warmupCommand().schedule();
   }
-
-  // /**
-  // * Aim the robot at the target returned by PhotonVision.
-  // *
-  // * @return A {@link Command} which will run the alignment.
-  // */
-  // public Command aimAtTarget(Cameras camera)
-  // {
-  //
-  // return run(() -> {
-  // Optional<PhotonPipelineResult> resultO = camera.getBestResult();
-  // if (resultO.isPresent())
-  // {
-  // var result = resultO.get();
-  // if (result.hasTargets())
-  // {
-  // drive(getTargetSpeeds(0,
-  // 0,
-  // Rotation2d.fromDegrees(result.getBestTarget()
-  // .getYaw()))); // Not sure if this will work, more math may be required.
-  // }
-  // }
-  // });
-  // }
 
   /**
    * Get the path follower with events.
@@ -862,14 +805,14 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   public void logReefAlignmentDiagnostics() {
-    boolean targetVisible = LimelightHelpers.getTV("");
+    boolean targetVisible = LimelightHelpers.getTV(RightCameraName);
     targetVisibleEntry.setBoolean(targetVisible);
     SmartDashboard.putBoolean("Target Visible", targetVisible);
 
     if (!targetVisible)
       return;
 
-    double[] pos = LimelightHelpers.getBotPose_TargetSpace("");
+    double[] pos = LimelightHelpers.getBotPose_TargetSpace(RightCameraName);
     double x = pos[2];
     double y = pos[0];
     double rot = pos[4]; // In radians

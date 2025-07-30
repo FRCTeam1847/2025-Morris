@@ -74,7 +74,7 @@ public class RobotContainer {
                         () -> controller.getLeftX() * -1)
                         .withControllerRotationAxis(controller::getRightX)
                         .deadband(OperatorConstants.DEADBAND)
-                        .scaleTranslation(0.8)
+                        .scaleTranslation(0.5)
                         .allianceRelativeControl(true);
 
         SwerveInputStream driveAngularVelocitySim = SwerveInputStream.of(drivebase.getSwerveDrive(),
@@ -82,7 +82,7 @@ public class RobotContainer {
                         () -> -controller.getLeftX())
                         .withControllerRotationAxis(() -> controller.getRightX())
                         .deadband(OperatorConstants.DEADBAND)
-                        .scaleTranslation(0.8)
+                        .scaleTranslation(0.5)
                         .allianceRelativeControl(true);
 
         /**
@@ -193,7 +193,7 @@ public class RobotContainer {
 
                 controller.povRight().whileTrue(NamedCommands.getCommand("AlignRight"));
                 controller.povLeft().whileTrue(NamedCommands.getCommand("AlignLeft"));
-                controller.R1().onTrue(NamedCommands.getCommand("ResetPose").ignoringDisable(true));
+                // controller.R1().onTrue(NamedCommands.getCommand("ResetPose").ignoringDisable(true));
         }
 
         /**
