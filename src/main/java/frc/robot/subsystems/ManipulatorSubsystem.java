@@ -1,5 +1,5 @@
 package frc.robot.subsystems;
-
+import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -32,15 +32,6 @@ public class ManipulatorSubsystem extends SubsystemBase {
     this.elevatorSubsystem = elevatorSubsystem;
     this.intakeSubsystem = intakeSubsystem;
 
-    //combinedMechanism2d = new LoggedMechanism2d(100, 100);
-
-    // Create the base root for the mechanism visualization
-    //baseRoot = combinedMechanism2d.getRoot("Base", BASE_X, BASE_Y);
-
-    // Add an elevator ligament (vertical element) to the visualization
-    //elevatorLigament = baseRoot.append(new LoggedMechanismLigament2d("Elevator", 0, 0));
-
-    //SmartDashboard.putData("Combined Mechanism", combinedMechanism2d);
   }
 
   /**
@@ -49,12 +40,8 @@ public class ManipulatorSubsystem extends SubsystemBase {
    * @param elevatorHeight The height of the elevator.
    */
   public void updateMechanism(double elevatorHeight) {
-    // Update the elevator ligament length in the visualization.
-    // elevatorLigament.setLength(elevatorHeight);
-
     // Log the manipulator pose and visualization
-    // Logger.recordOutput("Field/Robot/ManipulatorMechanism", getManipulatorPose3d());
-    // Logger.recordOutput("Mechanism2d/ManipulatorMechanism", combinedMechanism2d);
+     Logger.recordOutput("Field/Robot/ManipulatorMechanism", getManipulatorPose3d());
   }
 
   /**
@@ -115,6 +102,10 @@ public class ManipulatorSubsystem extends SubsystemBase {
 
   }
 
+  public void resetElevator(){
+    elevatorSubsystem.resetEncoder();
+  }
+
   public Command ScoreAtLevelParallelCommand(Levels level) {
     System.out.println("ScoreAtLevelParallelCommand Started");
 
@@ -156,10 +147,9 @@ public class ManipulatorSubsystem extends SubsystemBase {
         ),
 
         // Step 5: Move home
-        new RunCommand(() -> setLevel(Levels.Home), this).until(this::isAtHeight),
+        new InstantCommand(() -> setLevel(Levels.Home), this).until(this::isAtHeight)
 
-        // Ensure the entire sequence completes before allowing auto to drive away
-        new WaitUntilCommand(this::isAtHeight) // Make sure elevator reaches home before continuing auto
+   
     ).finallyDo((interrupted) -> {
       System.out.println("ScoreAtLevelCommand Ended. Stopping Intake.");
       intakeSubsystem.stopIntake();
@@ -178,7 +168,7 @@ public class ManipulatorSubsystem extends SubsystemBase {
   }
 
   public Command intakeCommand() {
-    return intakeSubsystem.intakeCommand();
+    return intakeSubsystem.intakeCommandUntilCoral();
   }
 
   public Command intakeStopCommand() {

@@ -7,7 +7,6 @@ package frc.robot.commands;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.LimelightHelpers;
@@ -57,7 +56,6 @@ public class AlignToReefTagRelative extends Command {
       // logAllPIDState(postions);
 
       double xSpeed = xController.calculate(postions[2]);
-      SmartDashboard.putNumber("xspee", xSpeed);
       double ySpeed = -yController.calculate(postions[0]);
       double rotValue = -rotController.calculate(postions[4]);
 
@@ -87,31 +85,31 @@ public class AlignToReefTagRelative extends Command {
         stopTimer.hasElapsed(Constants.POSE_VALIDATION_TIME);
   }
 
-  private void logAllPIDState(double[] positions) {
-    double xMeasurement = positions[2];
-    double yMeasurement = positions[0];
-    double rotMeasurement = positions[4];
+  // private void logAllPIDState(double[] positions) {
+  //   double xMeasurement = positions[2];
+  //   double yMeasurement = positions[0];
+  //   double rotMeasurement = positions[4];
   
-    SmartDashboard.putNumber("Limelight X Pose", xMeasurement);
-    SmartDashboard.putNumber("Limelight Y Pose", yMeasurement);
-    SmartDashboard.putNumber("Limelight Rot Pose", rotMeasurement);
+  //   SmartDashboard.putNumber("Limelight X Pose", xMeasurement);
+  //   SmartDashboard.putNumber("Limelight Y Pose", yMeasurement);
+  //   SmartDashboard.putNumber("Limelight Rot Pose", rotMeasurement);
   
-    // X Controller
-    SmartDashboard.putNumber("X Setpoint", xController.getSetpoint());
-    SmartDashboard.putNumber("X Error", xController.getSetpoint() - xMeasurement);
-    SmartDashboard.putNumber("X Output", xController.calculate(xMeasurement));
-    SmartDashboard.putBoolean("X At Setpoint", xController.atSetpoint());
+  //   // X Controller
+  //   SmartDashboard.putNumber("X Setpoint", xController.getSetpoint());
+  //   SmartDashboard.putNumber("X Error", xController.getSetpoint() - xMeasurement);
+  //   SmartDashboard.putNumber("X Output", xController.calculate(xMeasurement));
+  //   SmartDashboard.putBoolean("X At Setpoint", xController.atSetpoint());
   
-    // Y Controller
-    SmartDashboard.putNumber("Y Setpoint", yController.getSetpoint());
-    SmartDashboard.putNumber("Y Error", yController.getSetpoint() - yMeasurement);
-    SmartDashboard.putNumber("Y Output", -yController.calculate(yMeasurement));
-    SmartDashboard.putBoolean("Y At Setpoint", yController.atSetpoint());
+  //   // Y Controller
+  //   SmartDashboard.putNumber("Y Setpoint", yController.getSetpoint());
+  //   SmartDashboard.putNumber("Y Error", yController.getSetpoint() - yMeasurement);
+  //   SmartDashboard.putNumber("Y Output", -yController.calculate(yMeasurement));
+  //   SmartDashboard.putBoolean("Y At Setpoint", yController.atSetpoint());
   
-    // Rotation Controller
-    SmartDashboard.putNumber("Rot Setpoint", rotController.getSetpoint());
-    SmartDashboard.putNumber("Rot Error", rotController.getSetpoint() - rotMeasurement);
-    SmartDashboard.putNumber("Rot Output", -rotController.calculate(rotMeasurement));
-    SmartDashboard.putBoolean("Rot At Setpoint", rotController.atSetpoint());
-  }
+  //   // Rotation Controller
+  //   SmartDashboard.putNumber("Rot Setpoint", rotController.getSetpoint());
+  //   SmartDashboard.putNumber("Rot Error", rotController.getSetpoint() - rotMeasurement);
+  //   SmartDashboard.putNumber("Rot Output", -rotController.calculate(rotMeasurement));
+  //   SmartDashboard.putBoolean("Rot At Setpoint", rotController.atSetpoint());
+  // }
 }

@@ -1,9 +1,9 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import org.littletonrobotics.junction.Logger;
 
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.ControlType;
@@ -89,9 +89,9 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("Current Height: ", getElevatorHeight());
-    SmartDashboard.putBoolean("At Height: ", isAtHeight());
-   // SmartDashboard.putNumber("encoder rotations: ", leftEncoder.getPosition());
+    Logger.recordOutput("Field/Robot/ElevatorHeight", getElevatorHeight());
+    Logger.recordOutput("Field/Robot/IsAtHeight", isAtHeight());
+    Logger.recordOutput("Field/Robot/ElevatorEncoder", leftEncoder.getPosition());
   }
 
   public void resetEncoder() {

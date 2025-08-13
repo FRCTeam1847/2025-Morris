@@ -49,7 +49,7 @@ public final class Constants {
   public static final double Y_TOLERANCE_REEF_ALIGNMENT = 0.005;
 
   public static final double DONT_SEE_TAG_WAIT_TIME = 1;
-  public static final double ALIGN_TIMEOUT = 1.5;
+  public static final double ALIGN_TIMEOUT = 0.8;
   public static final double POSE_VALIDATION_TIME = 0.3;
 
   // Maximum speed of the robot in meters per second, used to limit acceleration.

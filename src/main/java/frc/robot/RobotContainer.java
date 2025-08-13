@@ -30,10 +30,11 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+// import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 
 /**
@@ -130,7 +131,7 @@ public class RobotContainer {
                 // NamedCommands.registerCommand("resetElevator", new InstantCommand(() ->
                 // manipulatorSubsystem.rest ));
                 NamedCommands.registerCommand("L2Only",
-                                new InstantCommand(() -> manipulatorSubsystem.SetJustLevel(Levels.L2)));
+                                new RunCommand(() -> manipulatorSubsystem.SetJustLevel(Levels.L2)));
                 NamedCommands.registerCommand("L3Only",
                                 manipulatorSubsystem.SetJustLevel(Levels.L3));
                 NamedCommands.registerCommand("L4Only",
@@ -154,7 +155,7 @@ public class RobotContainer {
                 NamedCommands.registerCommand("AlignLeft",
                                 new AlignToReefTagRelative(false, drivebase).withTimeout(Constants.ALIGN_TIMEOUT));
                 NamedCommands.registerCommand("ResetPose", new InstantCommand(
-                                () -> drivebase.resetOdometry(new Pose2d(15.9, 0.735, Rotation2d.fromDegrees(35)))));
+                                () -> manipulatorSubsystem.resetElevator()));
         }
 
         private void configureBindings() {
@@ -193,7 +194,7 @@ public class RobotContainer {
 
                 controller.povRight().whileTrue(NamedCommands.getCommand("AlignRight"));
                 controller.povLeft().whileTrue(NamedCommands.getCommand("AlignLeft"));
-                // controller.R1().onTrue(NamedCommands.getCommand("ResetPose").ignoringDisable(true));
+                controller.R1().onTrue(NamedCommands.getCommand("ResetPose").ignoringDisable(true));
         }
 
         /**

@@ -89,9 +89,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
   public boolean isOuterSensorTriggered() {
     if (RobotBase.isSimulation()) {
-      boolean triggered = simulationTimer.hasElapsed(0.025);
-      // System.out.println("Simulation mode: time = " + simulationTimer.get() +
-      // ",triggered = " + triggered);
+      boolean triggered = simulationTimer.hasElapsed(2);
       return triggered;
     } else {
       LaserCan.Measurement measurement = outerLaserCAN.getMeasurement();
@@ -112,6 +110,10 @@ public class IntakeSubsystem extends SubsystemBase {
         .andThen(new InstantCommand(() -> stopIntake(), this));
   }
 
+  public Command intakeCommandUntilCoral() {
+    return new RunCommand(() -> System.out.println("Intake!!!"), this).until(this::isInnerSensorTriggered);
+  }
+
   public boolean isInnerSensorTriggered() {
     if (RobotBase.isSimulation()) {
       return true; // or simulate a delay like in `isSensorTriggered`
@@ -119,7 +121,7 @@ public class IntakeSubsystem extends SubsystemBase {
       LaserCan.Measurement measurement = innerLaserCAN.getMeasurement();
       return (measurement != null &&
           measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT &&
-          measurement.distance_mm < 100); // adjust threshold as needed
+          measurement.distance_mm < 50); // adjust threshold as needed
     }
   }
 

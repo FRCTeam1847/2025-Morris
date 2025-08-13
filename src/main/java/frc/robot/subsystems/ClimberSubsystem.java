@@ -54,7 +54,7 @@ public class ClimberSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    Logger.recordOutput("Field/Robot/ClimberAngle", getClimberPositionDegrees());
+    // Logger.recordOutput("Field/Robot/ClimberAngle", getClimberPositionDegrees());
   }
 
 }
