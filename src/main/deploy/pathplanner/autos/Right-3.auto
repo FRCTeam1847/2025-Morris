@@ -13,44 +13,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "left"
-          }
-        },
-        {
-          "type": "deadline",
-          "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "L4"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "AlignRight"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "5 Station"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Intake"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Station 6"
+            "pathName": "Right"
           }
         },
         {
@@ -75,7 +38,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "6 to station"
+            "pathName": "3 to Station"
           }
         },
         {
@@ -87,7 +50,44 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Station 6"
+            "pathName": "Station to 2"
+          }
+        },
+        {
+          "type": "deadline",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "L4"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "AlignLeft"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "2 to Station"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Intake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Station to 2"
           }
         },
         {
