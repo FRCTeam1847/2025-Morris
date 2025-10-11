@@ -20,9 +20,6 @@ import java.util.Set;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -30,7 +27,6 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-// import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -56,6 +52,7 @@ public class RobotContainer {
         private final ManipulatorSubsystem manipulatorSubsystem = new ManipulatorSubsystem(elevatorSubsystem,
                         intakeSubsystem);
         private final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
+        @SuppressWarnings("unused")
         private final Light lights = new Light();
 
         ShuffleboardTab driverTab = Shuffleboard.getTab("Driver");
@@ -101,7 +98,6 @@ public class RobotContainer {
                                 .withSize(2, 1)
                                 .withPosition(3, 0)
                                 .withWidget(BuiltInWidgets.kComboBoxChooser);
-                // SmartDashboard.putData("Auto Chooser", autoChooser);
 
                 driverTab.add("Main", "http://limelight.local:5800/stream.mjpg")
                                 .withSize(3, 4)
@@ -110,9 +106,6 @@ public class RobotContainer {
                 driverTab.add("Back", "http://limelight-main.local:5800/stream.mjpg")
                                 .withSize(3, 4)
                                 .withPosition(5, 0).withWidget(BuiltInWidgets.kCameraStream);
-                // driverTab.add("Field", SmartDashboard.getData("Field"))
-                //                 .withSize(8, 5)
-                //                 .withPosition(0, 4).withWidget(BuiltInWidgets.kField);
         }
 
         private void configureDefaultCommand() {
@@ -128,8 +121,6 @@ public class RobotContainer {
                 NamedCommands.registerCommand("L2", scoreCommandWithTracking(Levels.L2));
                 NamedCommands.registerCommand("L3", scoreCommandWithTracking(Levels.L3));
                 NamedCommands.registerCommand("L4", scoreCommandWithTracking(Levels.L4));
-                // NamedCommands.registerCommand("resetElevator", new InstantCommand(() ->
-                // manipulatorSubsystem.rest ));
                 NamedCommands.registerCommand("L2Only",
                                 new RunCommand(() -> manipulatorSubsystem.SetJustLevel(Levels.L2)));
                 NamedCommands.registerCommand("L3Only",
@@ -145,8 +136,8 @@ public class RobotContainer {
                                 "Release", manipulatorSubsystem.releaseCommand());
                 NamedCommands.registerCommand(
                                 "IntakeStop", manipulatorSubsystem.intakeStopCommand());
-                NamedCommands.registerCommand("ClimberUp", climberSubsystem.moveForwardCommand());
-                NamedCommands.registerCommand("ClimberDown", climberSubsystem.moveBackwardCommand());
+                NamedCommands.registerCommand("ClimberUp", climberSubsystem.ClimberOutCommand());
+                NamedCommands.registerCommand("ClimberDown", climberSubsystem.PullCageInCommand());
                 NamedCommands.registerCommand("ClimberStop",
                                 climberSubsystem.stopCommand());
                 NamedCommands.registerCommand("CancelCommand", new InstantCommand(() -> cancelActiveScoreCommand()));
@@ -154,8 +145,11 @@ public class RobotContainer {
                                 new AlignToReefTagRelative(true, drivebase).withTimeout(Constants.ALIGN_TIMEOUT));
                 NamedCommands.registerCommand("AlignLeft",
                                 new AlignToReefTagRelative(false, drivebase).withTimeout(Constants.ALIGN_TIMEOUT));
-                NamedCommands.registerCommand("ResetPose", new InstantCommand(
-                                () -> manipulatorSubsystem.resetElevator()));
+                // NamedCommands.registerCommand("ResetElevator", new InstantCommand(
+                //                 () -> manipulatorSubsystem.resetElevator()));
+                NamedCommands.registerCommand("IntakeClimber",  climberSubsystem.GrabCageCommand());
+                NamedCommands.registerCommand("StopIntakeClimber",  climberSubsystem.stopIntakeCommand());
+                
         }
 
         private void configureBindings() {
@@ -194,7 +188,8 @@ public class RobotContainer {
 
                 controller.povRight().whileTrue(NamedCommands.getCommand("AlignRight"));
                 controller.povLeft().whileTrue(NamedCommands.getCommand("AlignLeft"));
-                controller.R1().onTrue(NamedCommands.getCommand("ResetPose").ignoringDisable(true));
+                controller.R1().onTrue(NamedCommands.getCommand("IntakeClimber"))
+                                .onFalse(NamedCommands.getCommand("StopIntakeClimber"));;
         }
 
         /**

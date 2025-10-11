@@ -34,6 +34,7 @@ public final class Constants {
   public static final double INTAKESPEED = -0.13;
 
   public static final double CLIMBERSPEED = 1;
+  public static final double CLIMBERINTAKESPEED = -0.2;
 
   public static final double X_REEF_ALIGNMENT_P = 2.5;
   public static final double Y_REEF_ALIGNMENT_P = 3.0;
@@ -79,11 +80,14 @@ public final class Constants {
 
   public static class ConfingValues {
     public static final int ClimberCANID = 9;
+    public static final int ClimberIntakeCANID = 10;
     public static final int IntakeCANID = 12;
     public static final int ELEVATORLEFTCANID = 11;
     public static final int ELEVATORRIGHTCANID = 10;
     public static final int InnerLaserCANID = 2;
     public static final int OuterLaserCANCANID = 1;
+    public static final int FloorLaserCANCANID = 3;
+    public static final int ClimberLaserCANCANID = 4;
     public static final int LightsPWMPORT = 9;
     public static final int LIGHTSBUFFERSIZE = 12;
 
