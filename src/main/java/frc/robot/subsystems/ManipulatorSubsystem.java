@@ -1,4 +1,5 @@
 package frc.robot.subsystems;
+
 import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -19,19 +20,11 @@ public class ManipulatorSubsystem extends SubsystemBase {
   private final ElevatorSubsystem elevatorSubsystem;
   private final IntakeSubsystem intakeSubsystem;
 
-  // private final LoggedMechanism2d combinedMechanism2d;
-  // private final LoggedMechanismRoot2d baseRoot;
-  // private final LoggedMechanismLigament2d elevatorLigament;
-
-  // private static final int BASE_X = 50;
-  // private static final int BASE_Y = 10;
-
   private Levels currentLevel = Levels.Home;
 
   public ManipulatorSubsystem(ElevatorSubsystem elevatorSubsystem, IntakeSubsystem intakeSubsystem) {
     this.elevatorSubsystem = elevatorSubsystem;
     this.intakeSubsystem = intakeSubsystem;
-
   }
 
   /**
@@ -41,7 +34,7 @@ public class ManipulatorSubsystem extends SubsystemBase {
    */
   public void updateMechanism(double elevatorHeight) {
     // Log the manipulator pose and visualization
-     Logger.recordOutput("Field/Robot/ManipulatorMechanism", getManipulatorPose3d());
+    Logger.recordOutput("Field/Robot/ManipulatorMechanism", getManipulatorPose3d());
   }
 
   /**
@@ -97,12 +90,12 @@ public class ManipulatorSubsystem extends SubsystemBase {
           setLevel(level);
         }),
         new InstantCommand(() -> System.out.println("Skipped scoring: No coral + in AUTO")),
-        () ->  hasInnerCoral() // Only run if not auto or coral is present
+        () -> hasInnerCoral() // Only run if not auto or coral is present
     );
 
   }
 
-  public void resetElevator(){
+  public void resetElevator() {
     elevatorSubsystem.resetEncoder();
   }
 
@@ -149,7 +142,6 @@ public class ManipulatorSubsystem extends SubsystemBase {
         // Step 5: Move home
         new InstantCommand(() -> setLevel(Levels.Home), this).until(this::isAtHeight)
 
-   
     ).finallyDo((interrupted) -> {
       System.out.println("ScoreAtLevelCommand Ended. Stopping Intake.");
       intakeSubsystem.stopIntake();
