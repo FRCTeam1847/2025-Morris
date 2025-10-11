@@ -64,7 +64,9 @@ public class ClimberSubsystem extends SubsystemBase {
   public Command moveBackwardCommand() {
     return runOnce(() -> m_climberMotor.set(-Constants.CLIMBERSPEED));
   }
-  /** Pull cage in until we have climbed 
+
+  /**
+   * Pull cage in until we have climbed
    * TODO: make sure the robot is off the floor with sensor
    */
   public Command PullCageInCommand() {
@@ -72,26 +74,38 @@ public class ClimberSubsystem extends SubsystemBase {
         .until(this::isClimberIn)
         .andThen(new InstantCommand(() -> m_climberMotor.set(0), this));
   }
+
   /** Release climber until climber is out */
   public Command ClimberOutCommand() {
     return new RunCommand(() -> m_climberMotor.set(Constants.CLIMBERSPEED))
         .until(this::isClimberOut)
         .andThen(new InstantCommand(() -> m_climberMotor.set(0), this));
+
+    /**
+     * TODO: test this version
+     * return new RunCommand(() -> m_climberMotor.set(Constants.CLIMBERSPEED))
+     * .until(this::isClimberOut)
+     * .andThen(GrabCageCommand());
+     */
   }
+
   /** Run cage intake until cage is in range */
   public Command GrabCageCommand() {
     return new RunCommand(() -> m_intakeMotor.set(Constants.CLIMBERINTAKESPEED))
         .until(this::isCageInRange)
         .andThen(new InstantCommand(() -> m_intakeMotor.set(0), this));
   }
-  /** Is climber all the way out?  */
+
+  /** Is climber all the way out? */
   public boolean isClimberOut() {
     return getClimberPositionDegrees() < 29;
   }
+
   /** Climber is > 80 degrees. AKA all the way in */
   public boolean isClimberIn() {
     return getClimberPositionDegrees() > 80;
   }
+
   /** Is the cage in the climber? < 35 mm */
   public boolean isCageInRange() {
     LaserCan.Measurement measurement = climberLaserCan.getMeasurement();
