@@ -26,6 +26,9 @@ public class ClimberSubsystem extends SubsystemBase {
   private LaserCan floorLaserCAN;
   private LaserCan climberLaserCan;
 
+  private boolean floorError = false;
+  private boolean cageError = false;
+
   private final DutyCycleEncoder climberEncoder = new DutyCycleEncoder(8);
 
   public ClimberSubsystem() {
@@ -138,15 +141,17 @@ public class ClimberSubsystem extends SubsystemBase {
       Logger.recordOutput("Field/Robot/Climber/floorMM", measurement.distance_mm);
       Logger.recordOutput("Field/Robot/Climber/floorAmbient", measurement.ambient);
 
-    } else {
-      System.out.println("Error with reading Floor sensor.");
+    } else if(!floorError) {
+      System.out.println("Error with reading FLOOR sensor.");
+      floorError= true;
     }
     LaserCan.Measurement cageMeasurement = climberLaserCan.getMeasurement();
     if (cageMeasurement != null && cageMeasurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
       Logger.recordOutput("Field/Robot/Climber/cageMM", cageMeasurement.distance_mm);
       Logger.recordOutput("Field/Robot/Climber/cageAmbient", cageMeasurement.ambient);
-    } else {
-      System.out.println("Error with reading Floor sensor.");
+    } else if(!cageError) {
+      System.out.println("Error with reading CAGE sensor.");
+      cageError = true;
     }
   }
 
