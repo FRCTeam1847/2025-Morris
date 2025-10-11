@@ -11,7 +11,6 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
-
 import au.grapplerobotics.ConfigurationFailedException;
 import au.grapplerobotics.LaserCan;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -93,13 +92,12 @@ public class IntakeSubsystem extends SubsystemBase {
       return triggered;
     } else {
       LaserCan.Measurement measurement = outerLaserCAN.getMeasurement();
-      // if (measurement != null && measurement.status ==
-      // LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
-      // System.out.println("The target is " + measurement.distance_mm + "mm away!");
-      // }
-      return (measurement != null &&
-          measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT &&
-          measurement.distance_mm < 100);
+      if (measurement != null && measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
+        return measurement.distance_mm < 100;
+      } else {
+        System.out.println("Error with OUTTER sensor reading");
+        return false;
+      }
     }
   }
 
@@ -119,9 +117,15 @@ public class IntakeSubsystem extends SubsystemBase {
       return true; // or simulate a delay like in `isSensorTriggered`
     } else {
       LaserCan.Measurement measurement = innerLaserCAN.getMeasurement();
-      return (measurement != null &&
-          measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT &&
-          measurement.distance_mm < 50); // adjust threshold as needed
+      if(measurement != null &&
+      measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT)
+      {
+        return (measurement.distance_mm < 50); // adjust threshold as needed
+      }
+      else{
+        System.out.println("Error with INNER sensor reading");
+        return false;
+      }
     }
   }
 

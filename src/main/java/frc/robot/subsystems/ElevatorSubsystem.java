@@ -26,7 +26,7 @@ public class ElevatorSubsystem extends SubsystemBase {
   private static final double GEAR_RATIO = 9.0; // 12:1 gearbox
   private static final double SPROCKET_DIAMETER_INCHES = 1.75; // Change this based on your actual sprocket diameter
   private static final double SPROCKET_CIRCUMFERENCE = SPROCKET_DIAMETER_INCHES * Math.PI; // inches per rev
-  private static final double kP = 0.06;
+  private static final double kP = 0.05;
   private static final double kI = 0.0;
   private static final double kD = 0.0;
   private static final double HEIGHT_TOLERANCE = 1;
@@ -89,9 +89,10 @@ public class ElevatorSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    Logger.recordOutput("Field/Robot/ElevatorHeight", getElevatorHeight());
-    Logger.recordOutput("Field/Robot/IsAtHeight", isAtHeight());
-    Logger.recordOutput("Field/Robot/ElevatorEncoder", leftEncoder.getPosition());
+    Logger.recordOutput("Field/Robot/Elevator/ElevatorHeight", getElevatorHeight());
+    Logger.recordOutput("Field/Robot/Elevator/IsAtHeight", isAtHeight());
+    Logger.recordOutput("Field/Robot/Elevator/ElevatorEncoder", leftEncoder.getPosition());
+    Logger.recordOutput("Field/Robot/Elevator/TargetHeight", getTargetHeight());
   }
 
   public void resetEncoder() {
