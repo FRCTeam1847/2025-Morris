@@ -82,14 +82,14 @@ public class ClimberSubsystem extends SubsystemBase {
   public Command ClimberOutCommand() {
     return new RunCommand(() -> m_climberMotor.set(Constants.CLIMBERSPEED))
         .until(this::isClimberOut)
-        .andThen(new InstantCommand(() -> m_climberMotor.set(0), this));
-
-    /**
-     * TODO: test this version
-     * return new RunCommand(() -> m_climberMotor.set(Constants.CLIMBERSPEED))
-     * .until(this::isClimberOut)
-     * .andThen(GrabCageCommand());
-     */
+        .andThen(new InstantCommand(() -> m_climberMotor.set(0), this))
+        .andThen(new RunCommand(() -> m_intakeMotor.set(Constants.CLIMBERINTAKESPEED))
+            .until(this::isCageInRange)
+            .andThen(new InstantCommand(() -> m_intakeMotor.set(0), this)))
+        .andThen(
+            new RunCommand(() -> m_climberMotor.set(-Constants.CLIMBERSPEED))
+                .until(this::isClimberIn)
+                .andThen(new InstantCommand(() -> m_climberMotor.set(0), this)));
   }
 
   /** Run cage intake until cage is in range */
@@ -106,14 +106,14 @@ public class ClimberSubsystem extends SubsystemBase {
 
   /** Climber is > 80 degrees. AKA all the way in */
   public boolean isClimberIn() {
-    return getClimberPositionDegrees() > 80;
+    return getClimberPositionDegrees() > 109;
   }
 
   /** Is the cage in the climber? < 35 mm */
   public boolean isCageInRange() {
     LaserCan.Measurement measurement = climberLaserCan.getMeasurement();
     if (measurement != null && measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
-      return (measurement.distance_mm < 35);
+      return (measurement.distance_mm < 40);
     } else {
       return false;
     }
@@ -141,15 +141,15 @@ public class ClimberSubsystem extends SubsystemBase {
       Logger.recordOutput("Field/Robot/Climber/floorMM", measurement.distance_mm);
       Logger.recordOutput("Field/Robot/Climber/floorAmbient", measurement.ambient);
 
-    } else if(!floorError) {
+    } else if (!floorError) {
       System.out.println("Error with reading FLOOR sensor.");
-      floorError= true;
+      floorError = true;
     }
     LaserCan.Measurement cageMeasurement = climberLaserCan.getMeasurement();
     if (cageMeasurement != null && cageMeasurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
       Logger.recordOutput("Field/Robot/Climber/cageMM", cageMeasurement.distance_mm);
       Logger.recordOutput("Field/Robot/Climber/cageAmbient", cageMeasurement.ambient);
-    } else if(!cageError) {
+    } else if (!cageError) {
       System.out.println("Error with reading CAGE sensor.");
       cageError = true;
     }

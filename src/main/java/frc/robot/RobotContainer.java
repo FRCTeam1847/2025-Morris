@@ -140,8 +140,8 @@ public class RobotContainer {
                 NamedCommands.registerCommand("L4", scoreCommandWithTracking(Levels.L4));
                 NamedCommands.registerCommand("L2Only",
                                 new RunCommand(() -> manipulatorSubsystem.SetJustLevel(Levels.L2)));
-                NamedCommands.registerCommand("L3Only",
-                                manipulatorSubsystem.SetJustLevel(Levels.L3));
+                NamedCommands.registerCommand("ClimbHeight",
+                               new InstantCommand (()-> manipulatorSubsystem.setLevel(Levels.L1)));
                 NamedCommands.registerCommand("L4Only",
                                 new InstantCommand(() -> manipulatorSubsystem.SetJustLevel(Levels.L4)));
                 NamedCommands.registerCommand("HasCoral",
@@ -172,75 +172,79 @@ public class RobotContainer {
         private void configureBindings() {
                 Command driveFieldOrientedAnglularVelocity;
                 Command driveFieldOrientedAnglularVelocitySim;
-                if (controller.isConnected()) {
-                        System.out.println("PS5 connected");
-                        driveFieldOrientedAnglularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
-                        driveFieldOrientedAnglularVelocitySim = drivebase.driveFieldOriented(driveAngularVelocitySim);
+                // if (controller.isConnected()) {
+                System.out.println("PS5 connected");
+                driveFieldOrientedAnglularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
+                driveFieldOrientedAnglularVelocitySim = drivebase.driveFieldOriented(driveAngularVelocitySim);
 
-                        // Button 6
-                        controller.R1().whileTrue(NamedCommands.getCommand("ClimberDown"))
-                                        .onFalse(NamedCommands.getCommand("ClimberStop"));
-                        // Button 8
-                        controller.R2().whileTrue(NamedCommands.getCommand("AlignRight"));
-                        // Button 5
-                        controller.L1().whileTrue(NamedCommands.getCommand("ClimberUp"))
-                                        .onFalse(NamedCommands.getCommand("ClimberStop"));
-                        // Button 7
-                        controller.L2().whileTrue(NamedCommands.getCommand("AlignLeft"));
+                // Button 6
+                controller.R1().whileTrue(NamedCommands.getCommand("ClimberDown"))
+                                .onFalse(NamedCommands.getCommand("ClimberStop"));
+                // Button 8
+                controller.R2().whileTrue(NamedCommands.getCommand("AlignRight"));
+                // Button 5
+                controller.L1().whileTrue(NamedCommands.getCommand("ClimberUp"))
+                                .onTrue(NamedCommands.getCommand("ClimbHeight"))
+                                .onFalse(NamedCommands.getCommand("ClimberStop"))
+                                .onFalse(NamedCommands.getCommand("StopIntakeClimber"));
+                ;
+                // Button 7
+                controller.L2().whileTrue(NamedCommands.getCommand("AlignLeft"));
 
-                        controller.povUp().whileTrue(NamedCommands.getCommand("Release"))
-                                        .onFalse(NamedCommands.getCommand("IntakeStop"));
-                        controller.povRight().onTrue(NamedCommands.getCommand("IntakeClimber"))
-                                        .onFalse(NamedCommands.getCommand("StopIntakeClimber"));
-                        controller.povDown().onTrue(NamedCommands.getCommand("Home"));
-                        // Button 1
-                        controller.cross().whileTrue(NamedCommands.getCommand("L1"))
-                                        .onFalse(NamedCommands.getCommand("CancelCommand"));
-                        // Button 2
-                        controller.circle().whileTrue(NamedCommands.getCommand("L2"))
-                                        .onFalse(NamedCommands.getCommand("CancelCommand"));
-                        // Button 3
-                        controller.square().whileTrue(NamedCommands.getCommand("L3"))
-                                        .onFalse(NamedCommands.getCommand("CancelCommand"));
-                        // Button 4
-                        controller.triangle().whileTrue(NamedCommands.getCommand("L4"))
-                                        .onFalse(NamedCommands.getCommand("CancelCommand"));
+                controller.cross().whileTrue(NamedCommands.getCommand("Release"))
+                                .onFalse(NamedCommands.getCommand("IntakeStop"));
+                controller.square().onTrue(NamedCommands.getCommand("IntakeClimber"))
+                                .onFalse(NamedCommands.getCommand("StopIntakeClimber"));
+                controller.povDown().onTrue(NamedCommands.getCommand("Home"));
+                // Button 1
+                controller.cross().whileTrue(NamedCommands.getCommand("L1"))
+                .onFalse(NamedCommands.getCommand("CancelCommand"));
+                // Button 2
+                controller.circle().whileTrue(NamedCommands.getCommand("L2"))
+                .onFalse(NamedCommands.getCommand("CancelCommand"));
+                // Button 3
+                controller.square().whileTrue(NamedCommands.getCommand("L3"))
+                .onFalse(NamedCommands.getCommand("CancelCommand"));
+                // Button 4
+                controller.triangle().whileTrue(NamedCommands.getCommand("L4"))
+                .onFalse(NamedCommands.getCommand("CancelCommand"));
 
-                } else {
-                        System.out.println("No PS5 connected. Using 8bit");
-                        driveFieldOrientedAnglularVelocity = drivebase.driveFieldOriented(driveAngularVelocity8Bit);
-                        driveFieldOrientedAnglularVelocitySim = drivebase
-                                        .driveFieldOriented(driveAngularVelocitySim8Bit);
+                // } else {
+                // System.out.println("No PS5 connected. Using 8bit");
+                // driveFieldOrientedAnglularVelocity =
+                // drivebase.driveFieldOriented(driveAngularVelocity8Bit);
+                // driveFieldOrientedAnglularVelocitySim = drivebase
+                // .driveFieldOriented(driveAngularVelocitySim8Bit);
 
-                        // Button 8
-                        controller8Bit.button(8).whileTrue(NamedCommands.getCommand("ClimberDown"))
-                                        .onFalse(NamedCommands.getCommand("ClimberStop"));
-                        // Button 10
-                        controller8Bit.button(10).whileTrue(NamedCommands.getCommand("AlignRight"));
-                        // Button 7
-                        controller8Bit.button(7).whileTrue(NamedCommands.getCommand("ClimberUp"))
-                                        .onFalse(NamedCommands.getCommand("ClimberStop"));
-                        // Button 9
-                        controller8Bit.button(9).whileTrue(NamedCommands.getCommand("AlignLeft"));
+                // // Button 8
+                // controller8Bit.button(8).whileTrue(NamedCommands.getCommand("ClimberDown"))
+                // .onFalse(NamedCommands.getCommand("ClimberStop"));
+                // // Button 10
+                // controller8Bit.button(10).whileTrue(NamedCommands.getCommand("AlignRight"));
+                // // Button 7
+                // controller8Bit.button(7).whileTrue(NamedCommands.getCommand("ClimberUp"))
+                // .onFalse(NamedCommands.getCommand("ClimberStop"));
+                // // Button 9
+                // controller8Bit.button(9).whileTrue(NamedCommands.getCommand("AlignLeft"));
 
-                        controller8Bit.povUp().whileTrue(NamedCommands.getCommand("Release"))
-                                        .onFalse(NamedCommands.getCommand("IntakeStop"));
-                        controller8Bit.povRight().onTrue(NamedCommands.getCommand("IntakeClimber"))
-                                        .onFalse(NamedCommands.getCommand("StopIntakeClimber"));
-                        controller8Bit.povDown().onTrue(NamedCommands.getCommand("Home"));
-                        // Button 1
-                        controller8Bit.button(1).whileTrue(NamedCommands.getCommand("L1"))
-                                        .onFalse(NamedCommands.getCommand("CancelCommand"));
-                        // Button 2
-                        controller8Bit.button(2).whileTrue(NamedCommands.getCommand("L2"))
-                                        .onFalse(NamedCommands.getCommand("CancelCommand"));
-                        // Button 4
-                        controller8Bit.button(4).whileTrue(NamedCommands.getCommand("L3"))
-                                        .onFalse(NamedCommands.getCommand("CancelCommand"));
-                        // Button 5
-                        controller8Bit.button(5).whileTrue(NamedCommands.getCommand("L4"))
-                                        .onFalse(NamedCommands.getCommand("CancelCommand"));
-                }
+                // controller8Bit.povUp().whileTrue(NamedCommands.getCommand("Release"))
+                // .onFalse(NamedCommands.getCommand("IntakeStop"));
+                // controller8Bit.povRight().onTrue(NamedCommands.getCommand("IntakeClimber"))
+                // .onFalse(NamedCommands.getCommand("StopIntakeClimber"));
+                // controller8Bit.povDown().onTrue(NamedCommands.getCommand("Home"));
+                // // Button 1
+                // controller8Bit.button(1).whileTrue(NamedCommands.getCommand("L1"))
+                // .onFalse(NamedCommands.getCommand("CancelCommand"));
+                // // Button 2
+                // controller8Bit.button(2).whileTrue(NamedCommands.getCommand("L2"))
+                // .onFalse(NamedCommands.getCommand("CancelCommand"));
+                // // Button 4
+                // controller8Bit.button(4).whileTrue(NamedCommands.getCommand("L3"))
+                // .onFalse(NamedCommands.getCommand("CancelCommand"));
+                // // Button 5
+                // controller8Bit.button(5).whileTrue(NamedCommands.getCommand("L4"))
+                // .onFalse(NamedCommands.getCommand("CancelCommand"));
+                // }
 
                 if (RobotBase.isSimulation()) {
                         drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocitySim);
