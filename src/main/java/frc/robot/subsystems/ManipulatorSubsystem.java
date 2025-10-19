@@ -4,7 +4,10 @@ import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.wpilibj.AddressableLED;
+import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -15,16 +18,35 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Constants;
 import frc.robot.Constants.Levels;
+import frc.robot.LimelightHelpers;
 
 public class ManipulatorSubsystem extends SubsystemBase {
   private final ElevatorSubsystem elevatorSubsystem;
   private final IntakeSubsystem intakeSubsystem;
+  private Servo servo;
 
   private Levels currentLevel = Levels.Home;
+
+  private AddressableLED led;
+  private AddressableLEDBuffer ledBuffer;
+  private int ledLength = 12;
+  // private int knightIndex = 0;
+  // private int knightDirection = 1;
+  // private int knightDelayCounter = 0;
+  // private static final int KNIGHT_DELAY_CYCLES = 3;
 
   public ManipulatorSubsystem(ElevatorSubsystem elevatorSubsystem, IntakeSubsystem intakeSubsystem) {
     this.elevatorSubsystem = elevatorSubsystem;
     this.intakeSubsystem = intakeSubsystem;
+    //setup servo for linear actuator
+    servo = new Servo(7);
+    servo.setBoundsMicroseconds(2000, 1500, 1500, 1500, 1000);
+
+    led = new AddressableLED(8); // PWM port
+    ledBuffer = new AddressableLEDBuffer(ledLength);
+    led.setLength(ledLength);
+    led.setData(ledBuffer);
+    led.start();
   }
 
   /**
@@ -82,6 +104,13 @@ public class ManipulatorSubsystem extends SubsystemBase {
         elevatorSubsystem.setTargetHeight(Constants.ConfingValues.ELEVATOR_MIN_HEIGHT);
         break;
     }
+  }
+
+  public Command ExtendServo(){
+    return new RunCommand(()-> servo.setAngle(50)); //180 is full extention
+  }
+  public Command CloseServo(){
+    return new RunCommand(()-> servo.setAngle(0));
   }
 
   public Command SetJustLevel(Levels level) {
@@ -187,5 +216,26 @@ public class ManipulatorSubsystem extends SubsystemBase {
   public void periodic() {
     double elevatorHeight = elevatorSubsystem.getTargetHeight();
     updateMechanism(elevatorHeight);
+    //Robot disabled
+    if (!DriverStation.isEnabled()) {
+      boolean targetVisible = LimelightHelpers.getTV("limelight-main");
+      if (targetVisible) {
+        //Green if visible april tag
+        for (int i = 0; i < ledLength; i++) {
+          ledBuffer.setRGB(i, 0, 255, 0);
+        }
+      } else {
+        for (int i = 0; i < ledLength; i++) {
+          ledBuffer.setRGB(i, 255, 0, 0);
+        }
+      }
+
+    } else {
+      //Enabled shows white light
+      for (int i = 0; i < ledLength; i++) {
+        ledBuffer.setRGB(i, 255, 255, 255);
+      }
+    }
+    led.setData(ledBuffer);
   }
 }

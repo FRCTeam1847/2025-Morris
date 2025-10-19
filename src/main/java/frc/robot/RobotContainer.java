@@ -10,19 +10,15 @@ import frc.robot.commands.AlignToReefTagRelative;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
-import frc.robot.subsystems.Light;
 import frc.robot.subsystems.ManipulatorSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 import swervelib.SwerveInputStream;
-
 import java.io.File;
 import java.util.Set;
-
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
-import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -54,8 +50,6 @@ public class RobotContainer {
         private final ManipulatorSubsystem manipulatorSubsystem = new ManipulatorSubsystem(elevatorSubsystem,
                         intakeSubsystem);
         private final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
-        @SuppressWarnings("unused")
-        private final Light lights = new Light();
 
         ShuffleboardTab driverTab = Shuffleboard.getTab("Driver");
 
@@ -85,20 +79,20 @@ public class RobotContainer {
                         .scaleTranslation(1)
                         .allianceRelativeControl(true);
         // 8BitController
-        SwerveInputStream driveAngularVelocity8Bit = SwerveInputStream.of(drivebase.getSwerveDrive(),
-                        () -> controller8Bit.getRawAxis(1) * -1,
-                        () -> controller8Bit.getRawAxis(0) * -1)
-                        .withControllerRotationAxis(() -> controller8Bit.getRawAxis(3))
-                        .deadband(OperatorConstants.DEADBAND)
-                        .scaleTranslation(0.5)
-                        .allianceRelativeControl(true);
-        SwerveInputStream driveAngularVelocitySim8Bit = SwerveInputStream.of(drivebase.getSwerveDrive(),
-                        () -> -controller8Bit.getRawAxis(1),
-                        () -> -controller8Bit.getRawAxis(0))
-                        .withControllerRotationAxis(() -> controller8Bit.getRawAxis(3) * -1)
-                        .deadband(OperatorConstants.DEADBAND)
-                        .scaleTranslation(1)
-                        .allianceRelativeControl(true);
+        // SwerveInputStream driveAngularVelocity8Bit = SwerveInputStream.of(drivebase.getSwerveDrive(),
+        //                 () -> controller8Bit.getRawAxis(1) * -1,
+        //                 () -> controller8Bit.getRawAxis(0) * -1)
+        //                 .withControllerRotationAxis(() -> controller8Bit.getRawAxis(3))
+        //                 .deadband(OperatorConstants.DEADBAND)
+        //                 .scaleTranslation(0.5)
+        //                 .allianceRelativeControl(true);
+        // SwerveInputStream driveAngularVelocitySim8Bit = SwerveInputStream.of(drivebase.getSwerveDrive(),
+        //                 () -> -controller8Bit.getRawAxis(1),
+        //                 () -> -controller8Bit.getRawAxis(0))
+        //                 .withControllerRotationAxis(() -> controller8Bit.getRawAxis(3) * -1)
+        //                 .deadband(OperatorConstants.DEADBAND)
+        //                 .scaleTranslation(1)
+        //                 .allianceRelativeControl(true);
 
         /**
          * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -166,25 +160,26 @@ public class RobotContainer {
                 // () -> manipulatorSubsystem.resetElevator()));
                 NamedCommands.registerCommand("IntakeClimber", climberSubsystem.GrabCageCommand());
                 NamedCommands.registerCommand("StopIntakeClimber", climberSubsystem.stopIntakeCommand());
+                
+                NamedCommands.registerCommand("ServoOut", manipulatorSubsystem.ExtendServo());
+                NamedCommands.registerCommand("ServoIn", manipulatorSubsystem.CloseServo());
 
         }
 
         private void configureBindings() {
                 Command driveFieldOrientedAnglularVelocity;
                 Command driveFieldOrientedAnglularVelocitySim;
-                // if (controller.isConnected()) {
-                System.out.println("PS5 connected");
+                
                 driveFieldOrientedAnglularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
                 driveFieldOrientedAnglularVelocitySim = drivebase.driveFieldOriented(driveAngularVelocitySim);
 
                 // Button 6
-                controller.R1().whileTrue(NamedCommands.getCommand("ClimberDown"))
-                                .onFalse(NamedCommands.getCommand("ClimberStop"));
+                controller.R1().whileTrue(NamedCommands.getCommand("ServoOut"))
+                                .onFalse(NamedCommands.getCommand("ServoIn"));
                 // Button 8
                 controller.R2().whileTrue(NamedCommands.getCommand("AlignRight"));
                 // Button 5
                 controller.L1().whileTrue(NamedCommands.getCommand("ClimberUp"))
-                                .onTrue(NamedCommands.getCommand("ClimbHeight"))
                                 .onFalse(NamedCommands.getCommand("ClimberStop"))
                                 .onFalse(NamedCommands.getCommand("StopIntakeClimber"));
                 ;

@@ -80,7 +80,7 @@ public final class Constants {
 
   public static class ConfingValues {
     public static final int ClimberCANID = 9;
-    public static final int ClimberIntakeCANID = 10;
+    public static final int ClimberIntakeCANID = 13;
     public static final int IntakeCANID = 12;
     public static final int ELEVATORLEFTCANID = 11;
     public static final int ELEVATORRIGHTCANID = 10;
@@ -90,7 +90,7 @@ public final class Constants {
     public static final int ClimberLaserCANCANID = 4;
     public static final int LightsPWMPORT = 9;
     public static final int LIGHTSBUFFERSIZE = 12;
-
+    public static final int ACTUATORPWMPORT = 12;
     public static final double ELEVATOR_MIN_HEIGHT = 0.5;
     public static final double ELEVATOR_MAX_HEIGHT = 27.4;
 
