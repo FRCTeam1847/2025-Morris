@@ -102,7 +102,7 @@ public class Robot extends LoggedRobot {
    */
   @Override
   public void disabledInit() {
-    m_robotContainer.setMotorBrake(true);
+    // m_robotContainer.setMotorBrake(false);
     disabledTimer.reset();
     disabledTimer.start();
   }
@@ -110,7 +110,7 @@ public class Robot extends LoggedRobot {
   @Override
   public void disabledPeriodic() {
     if (disabledTimer.hasElapsed(Constants.DrivebaseConstants.WHEEL_LOCK_TIME)) {
-      m_robotContainer.setMotorBrake(false);
+      // m_robotContainer.setMotorBrake(false);
       disabledTimer.stop();
     }
   }
@@ -143,6 +143,7 @@ public class Robot extends LoggedRobot {
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
     // this line or comment it out.
+    m_robotContainer.setMotorBrake(true);
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     } else {
@@ -160,7 +161,9 @@ public class Robot extends LoggedRobot {
   @Override
   public void testInit() {
     // Cancels all running commands at the start of test mode.
+    m_robotContainer.setMotorBrake(false);
     CommandScheduler.getInstance().cancelAll();
+    
   }
 
   /**

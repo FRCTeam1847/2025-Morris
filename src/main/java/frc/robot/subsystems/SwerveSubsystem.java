@@ -2,24 +2,6 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-// package frc.robot.subsystems;
-
-// import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
-// public class SwerveSubsystem extends SubsystemBase {
-//   /** Creates a new SwerveSubsystem. */
-//   public SwerveSubsystem() {}
-
-//   @Override
-//   public void periodic() {
-//     // This method will be called once per scheduler run
-//   }
-// }
-
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Meter;
@@ -35,9 +17,6 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.DriveFeedforwards;
 import com.pathplanner.lib.util.swerve.SwerveSetpoint;
 import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator;
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -47,7 +26,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.measure.MutAngularVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -56,8 +34,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
 import frc.robot.LimelightHelpers;
-
-//import frc.robot.subsystems.swervedrive.Vision.Cameras;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -66,8 +42,6 @@ import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import org.json.simple.parser.ParseException;
 import org.littletonrobotics.junction.Logger;
-
-//import org.photonvision.targeting.PhotonPipelineResult;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
 import swervelib.SwerveDriveTest;
@@ -84,6 +58,7 @@ public class SwerveSubsystem extends SubsystemBase {
    * Swerve drive object.
    */
   private final SwerveDrive swerveDrive;
+
   /**
    * AprilTag field layout.
    */
@@ -93,20 +68,19 @@ public class SwerveSubsystem extends SubsystemBase {
    * Enable vision odometry updates while driving.
    */
   private final boolean visionDriveTest = false;
-  /**
-   * PhotonVision class to keep an accurate odometry.
-   */
-  // private Vision vision;
+  private final String LeftCameraName = "limelight-main";
+  private final String RightCameraName = "";
 
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
    *
    * @param directory Directory of swerve drive config files.
    */
+
   public SwerveSubsystem(File directory) {
     // Configure the Telemetry before creating the SwerveDrive to avoid unnecessary
     // objects being created.
-    SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
+    SwerveDriveTelemetry.verbosity = TelemetryVerbosity.POSE;
     try {
       swerveDrive = new SwerveParser(directory).createSwerveDrive(Constants.MAX_SPEED,
           new Pose2d(new Translation2d(Meter.of(1),
@@ -140,6 +114,12 @@ public class SwerveSubsystem extends SubsystemBase {
       swerveDrive.stopOdometryThread();
     }
     // setupPathPlanner();
+    int[] ids = { 1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 13, 16, 17, 18, 19, 20, 21, 22 };
+    LimelightHelpers.SetFiducialIDFiltersOverride(LeftCameraName, ids);
+    LimelightHelpers.SetIMUMode(LeftCameraName, 1);
+
+    LimelightHelpers.SetFiducialIDFiltersOverride(RightCameraName, ids);
+    LimelightHelpers.SetIMUMode(RightCameraName, 1);
   }
 
   /**
@@ -166,44 +146,46 @@ public class SwerveSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // When vision is enabled we must manually update odometry in SwerveDrive
-    if (visionDriveTest) {
-      swerveDrive.updateOdometry();
+    logReefAlignmentDiagnosticsV2();
+    Rotation2d heading = swerveDrive.getOdometryHeading();
+    LimelightHelpers.SetRobotOrientation(LeftCameraName, heading.getDegrees(), 0, 0, 0, 0, 0);
+    LimelightHelpers.PoseEstimate mt2Left = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(LeftCameraName);
+
+    // Helper method to validate and add each vision estimate
+    if (mt2Left != null) {
+      processMegaTagVisionUpdate(mt2Left);
     }
 
-    // Record the robot's pose to the logger for visualization
+    LimelightHelpers.SetRobotOrientation(RightCameraName, heading.getDegrees(), 0, 0, 0, 0, 0);
+    LimelightHelpers.PoseEstimate mt2Right = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(RightCameraName);
+
+    // Helper method to validate and add each vision estimate
+    if (mt2Right != null) {
+      processMegaTagVisionUpdate(mt2Right);
+    }
+
     Logger.recordOutput("Field/Robot", new Pose3d(getPose()));
 
-    // Limelight vision integration
-    updateVisionPose();
   }
 
-  private void updateVisionPose() {
-    // Get the gyro angular velocity from YAGSL
-    MutAngularVelocity yawVelocity = swerveDrive.getGyro().getYawAngularVelocity();
+  private void processMegaTagVisionUpdate(LimelightHelpers.PoseEstimate visionPose) {
+    boolean doRejectUpdate = false;
 
-    // Convert to degrees per second
-    double angularVelocity = yawVelocity.magnitude();
+    double omegaDegPerSec = Math.toDegrees(swerveDrive.getRobotVelocity().omegaRadiansPerSecond);
 
-    // Set robot orientation for Limelight
-    LimelightHelpers.SetRobotOrientation(
-        "limelight",
-        getPose().getRotation().getDegrees(),
-        0, 0, 0, 0, 0);
-
-    // Retrieve pose estimation from Limelight
-    LimelightHelpers.PoseEstimate visionPose = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
-
-    // Reject vision update if:
-    // 1. Robot is rotating too fast (vision data unreliable)
-    // 2. No valid AprilTags detected
-    if (Math.abs(angularVelocity) > 360 || visionPose.tagCount == 0 || !visionPose.isMegaTag2) {
-      return; // Skip update
+    if (Math.abs(omegaDegPerSec) > 360) {
+      doRejectUpdate = true;
     }
 
-    // Apply vision update using YAGSL's method
-    swerveDrive.addVisionMeasurement(visionPose.pose, visionPose.timestampSeconds);
+    if (visionPose.tagCount == 0) {
+      doRejectUpdate = true;
+    }
+
+    if (!doRejectUpdate) {
+      swerveDrive.addVisionMeasurement(visionPose.pose, visionPose.timestampSeconds);
+    }
   }
+
 
   @Override
   public void simulationPeriodic() {
@@ -275,30 +257,6 @@ public class SwerveSubsystem extends SubsystemBase {
     // IF USING CUSTOM PATHFINDER ADD BEFORE THIS LINE
     PathfindingCommand.warmupCommand().schedule();
   }
-
-  // /**
-  // * Aim the robot at the target returned by PhotonVision.
-  // *
-  // * @return A {@link Command} which will run the alignment.
-  // */
-  // public Command aimAtTarget(Cameras camera)
-  // {
-  //
-  // return run(() -> {
-  // Optional<PhotonPipelineResult> resultO = camera.getBestResult();
-  // if (resultO.isPresent())
-  // {
-  // var result = resultO.get();
-  // if (result.hasTargets())
-  // {
-  // drive(getTargetSpeeds(0,
-  // 0,
-  // Rotation2d.fromDegrees(result.getBestTarget()
-  // .getYaw()))); // Not sure if this will work, more math may be required.
-  // }
-  // }
-  // });
-  // }
 
   /**
    * Get the path follower with events.
@@ -375,8 +333,9 @@ public class SwerveSubsystem extends SubsystemBase {
   public Command driveWithSetpointGeneratorFieldRelative(Supplier<ChassisSpeeds> fieldRelativeSpeeds) {
     try {
       return driveWithSetpointGenerator(() -> {
-        return ChassisSpeeds.fromFieldRelativeSpeeds(fieldRelativeSpeeds.get(), getHeading());
-
+        return ChassisSpeeds.fromFieldRelativeSpeeds(
+            fieldRelativeSpeeds.get(),
+            getHeading());
       });
     } catch (Exception e) {
       DriverStation.reportError(e.toString(), true);
@@ -462,12 +421,22 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   public Command driveCommand(DoubleSupplier translationX, DoubleSupplier translationY,
       DoubleSupplier angularRotationX) {
+
+    // return run(() -> {
+    // swerveDrive.drive(SwerveMath.scaleTranslation(new Translation2d(
+    // translationX.getAsDouble(),
+    // translationY.getAsDouble()), 1),
+    // Math.pow(angularRotationX.getAsDouble(), 3),
+    // true,
+    // false);
+    // });
     return run(() -> {
       // Make the robot move
       swerveDrive.drive(SwerveMath.scaleTranslation(new Translation2d(
           translationX.getAsDouble() * swerveDrive.getMaximumChassisVelocity(),
           translationY.getAsDouble() * swerveDrive.getMaximumChassisVelocity()), 0.8),
-          Math.pow(angularRotationX.getAsDouble(), 3) * swerveDrive.getMaximumChassisAngularVelocity(),
+          Math.pow(angularRotationX.getAsDouble(), 3) *
+              swerveDrive.getMaximumChassisAngularVelocity(),
           true,
           false);
     });
@@ -581,6 +550,9 @@ public class SwerveSubsystem extends SubsystemBase {
    * @param initialHolonomicPose The pose to set the odometry to
    */
   public void resetOdometry(Pose2d initialHolonomicPose) {
+    // if (useQuestNav) {
+    // questNav.zeroPosition(); // Reset QuestNav state
+    // }
     swerveDrive.resetOdometry(initialHolonomicPose);
   }
 
@@ -665,7 +637,7 @@ public class SwerveSubsystem extends SubsystemBase {
    * @return The yaw angle
    */
   public Rotation2d getHeading() {
-    return getPose().getRotation();
+    return swerveDrive.getPose().getRotation();
   }
 
   /**
@@ -701,7 +673,6 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   public ChassisSpeeds getTargetSpeeds(double xInput, double yInput, Rotation2d angle) {
     Translation2d scaledInputs = SwerveMath.cubeTranslation(new Translation2d(xInput, yInput));
-
     return swerveDrive.swerveController.getTargetSpeeds(scaledInputs.getX(),
         scaledInputs.getY(),
         angle.getRadians(),
@@ -776,4 +747,153 @@ public class SwerveSubsystem extends SubsystemBase {
   public SwerveDrive getSwerveDrive() {
     return swerveDrive;
   }
+
+  // public void logReefAlignmentDiagnostics() {
+  //   boolean targetVisible = LimelightHelpers.getTV(RightCameraName);
+  //   targetVisibleEntry.setBoolean(targetVisible);
+  //   SmartDashboard.putBoolean("Target Visible", targetVisible);
+
+  //   if (!targetVisible)
+  //     return;
+
+  //   double[] pos = LimelightHelpers.getBotPose_TargetSpace(RightCameraName);
+  //   double x = pos[2];
+  //   double y = pos[0];
+  //   double rot = pos[4]; // In radians
+  //   double rotDeg = Math.toDegrees(rot); // For visualization
+
+  //   // --- Log raw pose ---
+  //   xPoseEntry.setDouble(x);
+  //   yPoseEntry.setDouble(y);
+  //   rotPoseEntry.setDouble(rot);
+  //   rotAngleEntry.setDouble(rotDeg); // Degrees view
+
+  //   SmartDashboard.putNumber("X Pose", x);
+  //   SmartDashboard.putNumber("Y Pose", y);
+  //   SmartDashboard.putNumber("Rot Pose (rad)", rot);
+  //   SmartDashboard.putNumber("Rot Pose (deg)", rotDeg);
+
+  //   // --- Setpoints ---
+  //   double xSetpoint = Constants.X_SETPOINT_REEF_ALIGNMENT;
+  //   double rotSetpoint = Constants.ROT_SETPOINT_REEF_ALIGNMENT;
+  //   double ySetpointLeft = Constants.Y_SETPOINT_REEF_ALIGNMENT_LEFT;
+  //   double ySetpointRight = Constants.Y_SETPOINT_REEF_ALIGNMENT_RIGHT;
+
+  //   xSetpointEntry.setDouble(xSetpoint);
+  //   rotSetpointEntry.setDouble(rotSetpoint);
+  //   yLeftSetpointEntry.setDouble(ySetpointLeft);
+  //   yRightSetpointEntry.setDouble(ySetpointRight);
+
+  //   SmartDashboard.putNumber("X Setpoint", xSetpoint);
+  //   SmartDashboard.putNumber("Rot Setpoint", rotSetpoint);
+  //   SmartDashboard.putNumber("Y Setpoint Left", ySetpointLeft);
+  //   SmartDashboard.putNumber("Y Setpoint Right", ySetpointRight);
+
+  //   // --- Errors ---
+  //   double xError = xSetpoint - x;
+  //   double rotError = rotSetpoint - rot;
+
+  //   xErrorEntry.setDouble(xError);
+  //   rotErrorEntry.setDouble(rotError);
+
+  //   SmartDashboard.putNumber("X Error", xError);
+  //   SmartDashboard.putNumber("Rot Error", rotError);
+
+  //   // --- Tolerance checks for X and Rot only ---
+  //   boolean atX = Math.abs(xError) < Constants.X_TOLERANCE_REEF_ALIGNMENT;
+  //   boolean atRot = Math.abs(rotError) < Constants.ROT_TOLERANCE_REEF_ALIGNMENT;
+
+  //   atXEntry.setBoolean(atX);
+  //   atRotEntry.setBoolean(atRot);
+
+  //   SmartDashboard.putBoolean("At X Setpoint", atX);
+  //   SmartDashboard.putBoolean("At Rot Setpoint", atRot);
+
+  //   // --- At Left/Right full pose checks ---
+  //   boolean atYLeft = Math.abs(y - ySetpointLeft) < Constants.Y_TOLERANCE_REEF_ALIGNMENT;
+  //   boolean atLeft = atX && atYLeft && atRot;
+
+  //   atLeftEntry.setBoolean(atLeft);
+  //   SmartDashboard.putBoolean("At Left Setpoint", atLeft);
+  //   yErrorLeftEntry.setDouble(ySetpointLeft - y);
+  //   SmartDashboard.putNumber("Y Error to LEFT", ySetpointLeft - y);
+
+  //   boolean atYRight = Math.abs(y - ySetpointRight) < Constants.Y_TOLERANCE_REEF_ALIGNMENT;
+  //   boolean atRight = atX && atYRight && atRot;
+
+  //   atRightEntry.setBoolean(atRight);
+  //   SmartDashboard.putBoolean("At Right Setpoint", atRight);
+  //   yErrorRightEntry.setDouble(ySetpointRight - y);
+  //   SmartDashboard.putNumber("Y Error to RIGHT", ySetpointRight - y);
+
+  //   // --- Closer side ---
+  //   String closer = Math.abs(y - ySetpointLeft) < Math.abs(y - ySetpointRight) ? "Left" : "Right";
+  //   closerSideEntry.setString(closer);
+  //   SmartDashboard.putString("Closest Side", closer);
+  // }
+
+  public void logReefAlignmentDiagnosticsV2() {
+    boolean targetVisible = LimelightHelpers.getTV(RightCameraName);
+    Logger.recordOutput("Field/Robot/Alignment/TargetVisible", targetVisible);
+
+    if (!targetVisible)
+      return;
+
+    double[] pos = LimelightHelpers.getBotPose_TargetSpace(RightCameraName);
+    double x = pos[2];
+    double y = pos[0];
+    double rot = pos[4]; // radians
+    double rotDeg = Math.toDegrees(rot);
+
+    // --- Raw pose ---
+    Logger.recordOutput("Field/Robot/Alignment/XPose", x);
+    Logger.recordOutput("Field/Robot/Alignment/YPose", y);
+    Logger.recordOutput("Field/Robot/Alignment/RotPoseRad", rot);
+    Logger.recordOutput("Field/Robot/Alignment/RotPoseDeg", rotDeg);
+
+    // --- Setpoints ---
+    double xSetpoint = Constants.X_SETPOINT_REEF_ALIGNMENT;
+    double rotSetpoint = Constants.ROT_SETPOINT_REEF_ALIGNMENT;
+    double ySetpointLeft = Constants.Y_SETPOINT_REEF_ALIGNMENT_LEFT;
+    double ySetpointRight = Constants.Y_SETPOINT_REEF_ALIGNMENT_RIGHT;
+
+    Logger.recordOutput("Field/Robot/Alignment/XSetpoint", xSetpoint);
+    Logger.recordOutput("Field/Robot/Alignment/RotSetpoint", rotSetpoint);
+    Logger.recordOutput("Field/Robot/Alignment/YSetpointLeft", ySetpointLeft);
+    Logger.recordOutput("Field/Robot/Alignment/YSetpointRight", ySetpointRight);
+
+    // --- Errors ---
+    double xError = xSetpoint - x;
+    double rotError = rotSetpoint - rot;
+
+    Logger.recordOutput("Field/Robot/Alignment/XError", xError);
+    Logger.recordOutput("Field/Robot/Alignment/RotError", rotError);
+
+    // --- Tolerance checks for X and Rot only ---
+    boolean atX = Math.abs(xError) < Constants.X_TOLERANCE_REEF_ALIGNMENT;
+    boolean atRot = Math.abs(rotError) < Constants.ROT_TOLERANCE_REEF_ALIGNMENT;
+
+    Logger.recordOutput("Field/Robot/Alignment/AtXSetpoint", atX);
+    Logger.recordOutput("Field/Robot/Alignment/AtRotSetpoint", atRot);
+
+    // --- At Left/Right full pose checks ---
+    double yErrorLeft = ySetpointLeft - y;
+    boolean atYLeft = Math.abs(yErrorLeft) < Constants.Y_TOLERANCE_REEF_ALIGNMENT;
+    boolean atLeft = atX && atYLeft && atRot;
+
+    Logger.recordOutput("Field/Robot/Alignment/AtLeftSetpoint", atLeft);
+    Logger.recordOutput("Field/Robot/Alignment/YErrorLeft", yErrorLeft);
+
+    double yErrorRight = ySetpointRight - y;
+    boolean atYRight = Math.abs(yErrorRight) < Constants.Y_TOLERANCE_REEF_ALIGNMENT;
+    boolean atRight = atX && atYRight && atRot;
+
+    Logger.recordOutput("Field/Robot/Alignment/AtRightSetpoint", atRight);
+    Logger.recordOutput("Field/Robot/Alignment/YErrorRight", yErrorRight);
+
+    // --- Closer side ---
+    String closer = Math.abs(yErrorLeft) < Math.abs(yErrorRight) ? "Left" : "Right";
+    Logger.recordOutput("Field/Robot/Alignment/CloserSide", closer);
+  }
+
 }

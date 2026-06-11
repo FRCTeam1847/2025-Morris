@@ -22,28 +22,37 @@ import swervelib.math.Matter;
  */
 public final class Constants {
 
-  public static final double ROBOT_MASS = (148 - 20.3) * 0.453592; // 32lbs * kg per pound
+  private static final double robotWeight = 138; //
+  public static final double ROBOT_MASS = robotWeight * 0.453592; // 32lbs * kg per pound
   public static final Matter CHASSIS = new Matter(new Translation3d(0, 0, Units.inchesToMeters(8)), ROBOT_MASS);
-  public static final double LOOP_TIME = 0.13; // s, 20ms + 110ms sprk max velocity lag
-  public static final double MAX_SPEED = Units.feetToMeters(6);
+  public static final double LOOP_TIME = 0.02; // s, 20ms + 110ms sprk max velocity lag // Old 0.13; 0.02 for saftey.
+                                               // TEST 0.012
+  public static final double MAX_SPEED = 4.0;
 
-  public static final double X_REEF_ALIGNMENT_P = 1.0;
-  public static final double Y_REEF_ALIGNMENT_P = 1.0;
+  public static final double L1RELEASESPEED = -0.4;
+  public static final double RELEASESPEED = -0.5;
+  public static final double INTAKESPEED = -0.13;
+
+  public static final double CLIMBERSPEED = 1;
+  public static final double CLIMBERINTAKESPEED = -0.2;
+
+  public static final double X_REEF_ALIGNMENT_P = 2.5;
+  public static final double Y_REEF_ALIGNMENT_P = 3.0;
   public static final double ROT_REEF_ALIGNMENT_P = 0.058;
 
   public static final double ROT_SETPOINT_REEF_ALIGNMENT = 0; // Rotation
   public static final double ROT_TOLERANCE_REEF_ALIGNMENT = 1;
-  public static final double X_SETPOINT_REEF_ALIGNMENT = -0.4; // Vertical pose
+  public static final double X_SETPOINT_REEF_ALIGNMENT = -0.424; // Vertical pose
   public static final double X_TOLERANCE_REEF_ALIGNMENT = 0.01;
-  public static final double Y_SETPOINT_REEF_ALIGNMENT_LEFT = -0.75; // Horizontal pose
-  public static final double Y_SETPOINT_REEF_ALIGNMENT_RIGHT = -0.03; 
+  public static final double Y_SETPOINT_REEF_ALIGNMENT_LEFT = -0.45; // Horizontal pose
+  public static final double Y_SETPOINT_REEF_ALIGNMENT_RIGHT = -0.09;
 
   public static final double Y_TOLERANCE_REEF_ALIGNMENT = 0.005;
 
-	public static final double DONT_SEE_TAG_WAIT_TIME = 1;
-	public static final double POSE_VALIDATION_TIME = 0.3;
+  public static final double DONT_SEE_TAG_WAIT_TIME = 1;
+  public static final double ALIGN_TIMEOUT = 0.8;
+  public static final double POSE_VALIDATION_TIME = 0.3;
 
-  
   // Maximum speed of the robot in meters per second, used to limit acceleration.
 
   // public static final class AutonConstants
@@ -69,9 +78,31 @@ public final class Constants {
     public static final double TURN_CONSTANT = 6;
   }
 
+  public static class ConfingValues {
+    public static final int ClimberCANID = 9;
+    public static final int ClimberIntakeCANID = 13;
+    public static final int IntakeCANID = 12;
+    public static final int ELEVATORLEFTCANID = 11;
+    public static final int ELEVATORRIGHTCANID = 10;
+    public static final int InnerLaserCANID = 2;
+    public static final int OuterLaserCANCANID = 1;
+    public static final int FloorLaserCANCANID = 3;
+    public static final int ClimberLaserCANCANID = 4;
+    public static final int LightsPWMPORT = 9;
+    public static final int LIGHTSBUFFERSIZE = 12;
+    public static final int ACTUATORPWMPORT = 12;
+    public static final double ELEVATOR_MIN_HEIGHT = 0.5;
+    public static final double ELEVATOR_MAX_HEIGHT = 27.4;
+
+  }
+
+  public static final double L1_HEIGHT = 3.75;
+  public static final double L2_HEIGHT = 6.25;
+  public static final double L3_HEIGHT = 13.75;
+  public static final double L4_HEIGHT = 27;
+
   public static enum Levels {
     Home,
-    CoralStation,
     L1,
     L2,
     L3,
