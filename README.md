@@ -20,8 +20,9 @@ This repository contains the code for FRC Team 1847’s 2025 robot.
 
 ### Required Tools
 1. **WPILib + VS Code**  
-   - Follow the [WPILib installation guide](https://docs.wpilib.org/en/stable/docs/zero-to-robot/step-2/wpilib-setup.html) to set up VS Code with the WPILib extension.  
-   - Install the [FRC Game Tools](https://docs.wpilib.org/en/stable/docs/zero-to-robot/step-2/frc-game-tools.html) (Driver Station, etc.).
+   - Follow the [WPILib installation guide](https://docs.wpilib.org/en/2025/docs/zero-to-robot/step-2/wpilib-setup.html) to set up VS Code with the WPILib extension.  
+   - Install the [FRC Game Tools](https://docs.wpilib.org/en/2025/docs/zero-to-robot/step-2/frc-game-tools.html) (Driver Station, etc.).
+   - Install Git from the official site: https://git-scm.com/install/windows.
 
 ### Optional Tools
 - **PathPlanner**  
